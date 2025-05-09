@@ -7,11 +7,7 @@ interface Attribute {
   value: string;
 }
 
-export default function AccountDetailsUpdateForm({
-  onSubmit,
-}: {
-  onSubmit: Function;
-}) {
+export default function AccountDetailsUpdateForm() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [picture, setPicture] = useState("");

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
-import { ConnectKitButton } from "connectkit";
 
 import { evmAddress } from "@lens-protocol/client";
 import {
@@ -11,11 +10,12 @@ import {
 import { setupOnboardingUser } from "./utils/users";
 import { client } from "./utils/client";
 import { fetchApplicationByTxHash, fetchAllUsers } from "./utils/app";
-import NavBar from "./components/NavBar";
 
 import type { SessionClient, App, AppUser } from "@lens-protocol/client";
 
+import NavBar from "./components/NavBar";
 import SignupForm from "./components/SignupForm";
+import AccountProfilePage from "./components/AccountProfilePage";
 
 // Read Authentication > Advanced > Authentication Tokens: To authenticated your app's users
 // TODO: Is account needed, walletClient has account inside
@@ -109,7 +109,7 @@ const App = () => {
       HasWalletClient: Boolean(walletClient),
       HasSessionClient: Boolean(sessionClient),
     });
-    
+
   }, [walletClient, account.isConnected, sessionClient]);
 
   useEffect(() => {
@@ -122,9 +122,9 @@ const App = () => {
 
     fetchAllUsers(client)
       .then((paginated) => {
-      if (!paginated) return;
-      setUsers(paginated.items);
-      console.log("Users:", paginated.items);
+        if (!paginated) return;
+        setUsers(paginated.items);
+        console.log("Users:", paginated.items);
       })
       .catch(console.error);
   }, []);
@@ -134,65 +134,73 @@ const App = () => {
       {/* <ConnectKitButton /> */}
       <NavBar navs={navs} setPage={setPage} />
 
-      {app && (
-        <div className="space-y-1">
-          <p><strong>Address:</strong> {app.address}</p>
-          <p><strong>Created At:</strong> {app.createdAt}</p>
-          <p><strong>Default Feed:</strong> {app.defaultFeedAddress}</p>
-          <p><strong>Graph:</strong> {app.graphAddress}</p>
-          <p><strong>Authorization Endpoint:</strong> {String(app.hasAuthorizationEndpoint)}</p>
-          <p><strong>Description:</strong> {app.metadata?.description}</p>
-          <p><strong>Developer:</strong> {app.metadata?.developer}</p>
-          <p><strong>Name:</strong> {app.metadata?.name}</p>
-          <p><strong>Platforms:</strong> {app.metadata?.platforms?.join(", ")}</p>
-          <p><strong>Tagline:</strong> {app.metadata?.tagline}</p>
-          <p><strong>URL:</strong> {app.metadata?.url}</p>
-          <p><strong>Namespace:</strong> {app.namespaceAddress}</p>
-          <p><strong>Owner:</strong> {app.owner}</p>
-          <p><strong>Sponsorship:</strong> {app.sponsorshipAddress || "Null"}</p>
-          <p><strong>Treasury:</strong> {app.treasuryAddress || "Null"}</p>
-          <p><strong>Verification:</strong> {String(app.verificationEnabled)}</p>
-        </div>
+      {page === "dev" && (
+        <>
+          {app && (
+            <div className="space-y-1">
+              <p><strong>Address:</strong> {app.address}</p>
+              <p><strong>Created At:</strong> {app.createdAt}</p>
+              <p><strong>Default Feed:</strong> {app.defaultFeedAddress}</p>
+              <p><strong>Graph:</strong> {app.graphAddress}</p>
+              <p><strong>Authorization Endpoint:</strong> {String(app.hasAuthorizationEndpoint)}</p>
+              <p><strong>Description:</strong> {app.metadata?.description}</p>
+              <p><strong>Developer:</strong> {app.metadata?.developer}</p>
+              <p><strong>Name:</strong> {app.metadata?.name}</p>
+              <p><strong>Platforms:</strong> {app.metadata?.platforms?.join(", ")}</p>
+              <p><strong>Tagline:</strong> {app.metadata?.tagline}</p>
+              <p><strong>URL:</strong> {app.metadata?.url}</p>
+              <p><strong>Namespace:</strong> {app.namespaceAddress}</p>
+              <p><strong>Owner:</strong> {app.owner}</p>
+              <p><strong>Sponsorship:</strong> {app.sponsorshipAddress || "Null"}</p>
+              <p><strong>Treasury:</strong> {app.treasuryAddress || "Null"}</p>
+              <p><strong>Verification:</strong> {String(app.verificationEnabled)}</p>
+            </div>
+          )}
+
+          {users && (
+            <div>
+              <h2 className="text-xl font-semibold">Users ({users.length})</h2>
+              <ol className="list-decimal ml-6 space-y-2">
+                {users.map((item, idx) => (
+                  <li key={idx}>
+                    <img
+                      src={item.account.metadata?.picture ?? "lens-logo.png"}
+                      alt="Account pic"
+                      className="w-8 h-8 rounded-full mr-2 inline"
+                      onError={(e) => (e.currentTarget.src = "lens-logo.png")}
+                    />
+                    <span>
+                      Username: {item.account.username?.localName ?? "Null"} | Name:{" "}
+                      {item.account.metadata?.name ?? "Null"} | Addr: ...
+                      {item.account.address?.slice(-6)} | Owner: ...
+                      {item.account.owner?.slice(-6)}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          <button
+            className="bg-blue-500 text-white px-3 py-1 rounded mt-5 cursor-pointer hover:bg-blue-700 transition"
+            onClick={() => setShowSignupForm(!showSignupForm)}
+          >
+            Signup
+          </button>
+
+          {showSignupForm && (
+            <SignupForm
+              onboardingUserSessionClient={sessionClient}
+              walletClient={walletClient}
+              createOnboardingSessionClient={createOnboardingSessionClient}
+            />
+          )}
+        </>
       )}
 
-      {users && (
-        <div>
-          <h2 className="text-xl font-semibold">Users ({users.length})</h2>
-          <ol className="list-decimal ml-6 space-y-2">
-            {users.map((item, idx) => (
-              <li key={idx}>
-                <img
-                  src={item.account.metadata?.picture ?? "lens-logo.png"}
-                  alt="Account pic"
-                  className="w-8 h-8 rounded-full mr-2 inline"
-                  onError={(e) => (e.currentTarget.src = "lens-logo.png")}
-                />
-                <span>
-                  Username: {item.account.username?.localName ?? "Null"} | Name:{" "}
-                  {item.account.metadata?.name ?? "Null"} | Addr: ...
-                  {item.account.address?.slice(-6)} | Owner: ...
-                  {item.account.owner?.slice(-6)}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
+      {page === "feed" && <div>Feed</div>}
+      {page === "profile" && <AccountProfilePage />}
 
-      <button
-        className="bg-blue-500 text-white px-3 py-1 rounded mt-5 cursor-pointer hover:bg-blue-700 transition"
-        onClick={() => setShowSignupForm(!showSignupForm)}
-      >
-        Signup
-      </button>
-
-      {showSignupForm && (
-        <SignupForm
-          onboardingUserSessionClient={sessionClient}
-          walletClient={walletClient}
-          createOnboardingSessionClient={createOnboardingSessionClient}
-        />
-      )}
     </div>
   );
 };
