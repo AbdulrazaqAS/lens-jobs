@@ -1,4 +1,4 @@
-import { txHash, evmAddress, PublicClient, App } from "@lens-protocol/client";
+import { txHash, evmAddress, PublicClient, EvmAddress } from "@lens-protocol/client";
 import {
   fetchApp,
   fetchAppUsers,
@@ -11,34 +11,33 @@ import { AppMetadataDetails } from "@lens-protocol/metadata";
 const APP_TX_HASH = import.meta.env.VITE_APP_TX_HASH;
 const APP_ADDRESS = import.meta.env.VITE_APP_ADDRESS;
 
-export interface AppDetails {
-  address: string;
-  createdAt: string;
-  defaultFeedAddress: string;
-  graphAddress: string;
-  namespaceAddress: string;
-  owner: string;
-  sponsorshipAddress: string;
-  treasuryAddress: string;
-  verificationEnabled: boolean;
-  hasAuthorizationEndpoint: boolean;
-  metadata: AppMetadataDetails;
-}
+// export interface AppDetails {
+//   address: string;
+//   createdAt: string;
+//   defaultFeedAddress: string;
+//   graphAddress: string;
+//   namespaceAddress: string;
+//   owner: string;
+//   sponsorshipAddress: string;
+//   treasuryAddress: string;
+//   verificationEnabled: boolean;
+//   hasAuthorizationEndpoint: boolean;
+//   metadata: AppMetadataDetails;
+// }
 
-export async function fetchAppByTxHash(client: PublicClient) {
+export async function fetchApplicationByTxHash(client: PublicClient) {
   const result = await fetchApp(client, {
     txHash: txHash(APP_TX_HASH),
   });
 
   if (result.isErr()) {
-    console.error(result.error);
-    return;
+    throw result.error;
   }
 
   return result.value;
 }
 
-export async function fetchAppByAddress(client: PublicClient) {
+export async function fetchApplicationByAddress(client: PublicClient) {
   const result = await fetchApp(client, {
     app: evmAddress(APP_ADDRESS),
   });
@@ -72,7 +71,10 @@ export async function fetchUsersByQuery({
   query,
 }: {
   client: PublicClient;
-  query: Object;
+  query: {
+    namespaces?: EvmAddress[] | null | undefined;
+    localNameQuery: string;
+} | null | undefined;
 }) {
   // Query eg:{localNameQuery: "John"}
   const result = await fetchAppUsers(client, {
@@ -92,7 +94,7 @@ export async function fetchUsersByQuery({
   return result.value;
 }
 
-export async function fetchAppFeeds(client: PublicClient) {
+export async function fetchApplicationFeeds(client: PublicClient) {
   const result = await fetchAppFeeds(client, {
     app: evmAddress(APP_ADDRESS),
   });
@@ -105,28 +107,26 @@ export async function fetchAppFeeds(client: PublicClient) {
   return result.value;
 }
 
-export async function fetchAppGroups(client: PublicClient) {
+export async function fetchApplicationGroups(client: PublicClient) {
   const result = await fetchAppGroups(client, {
     app: evmAddress(APP_ADDRESS),
   });
 
   if (result.isErr()) {
-    return console.error(result.error);
+    throw result.error;
   }
 
-  // items: Array<Group>
   return result.value;
 }
 
-export async function fetchAppSigners(client: PublicClient) {
+export async function fetchApplicationSigners(client: PublicClient) {
   const result = await fetchAppSigners(client, {
     app: evmAddress(APP_ADDRESS),
   });
 
   if (result.isErr()) {
-    return console.error(result.error);
+    throw result.error;
   }
 
-  // items: Array<AppSigner>: [{signer: evmAddress, timestamp: DateTime}, …]
   return result.value;
 }

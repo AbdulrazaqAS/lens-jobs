@@ -1,6 +1,6 @@
-import { ConnectKitButton } from "connectkit";
 import { useEffect, useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
+import { ConnectKitButton } from "connectkit";
 
 import { evmAddress } from "@lens-protocol/client";
 import {
@@ -11,18 +11,11 @@ import {
 import { setupOnboardingUser } from "./utils/users";
 import { client } from "./utils/client";
 import { AccountDetails } from "./utils/account";
-import { fetchAppByTxHash, fetchAllUsers, AppDetails } from "./utils/app";
+import { fetchApplicationByTxHash, fetchAllUsers } from "./utils/app";
 
-import type { SessionClient } from "@lens-protocol/client";
+import type { SessionClient, App, AppUser } from "@lens-protocol/client";
 
 import SignupForm from "./components/SignupForm";
-
-const LensJobs_URI =
-  "lens://50efa5c55fb75422540b9227067c97f706bfeeb3e1e46d24e322873a1f493450";
-const admins = [
-  "0xDaaE14a470e36796ADf9c75766D3d8ADD0a3D94c",
-  "0x09938A51D5AF9c3ee0262865dba74F78DCFC99a6",
-];
 
 // Read Authentication > Advanced > Authentication Tokens: To authenticated your app's users
 // TODO: Is account needed, walletClient has account inside
@@ -30,8 +23,8 @@ const App = () => {
   const account = useAccount();
   const { data: walletClient } = useWalletClient();
 
-  const [app, setApp] = useState<AppDetails>();
-  const [users, setUsers] = useState<AccountDetails[]>();
+  const [app, setApp] = useState<App>();
+  const [users, setUsers] = useState<Readonly<AppUser[]>>();
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
 
@@ -45,6 +38,12 @@ const App = () => {
       managedBy: evmAddress(walletClient.account.address),
       includeOwned: true,
     });
+
+    if (result.isErr()) {
+      console.error("Error fetching address' accounts:", result.error);
+      throw result.error;
+    }
+
     console.log("Connected Address Accounts", result.value);
     return result.value;
   }
@@ -61,7 +60,7 @@ const App = () => {
     }
 
     const result = await lastLoggedInAccount(client, {
-      address: evmAddress(walletClient!.account!.address),
+      address: evmAddress(walletClient.account.address),
       // app: evmAddress{TESTNET_APP}  // Specific app, omit for all apps
     });
 
@@ -69,15 +68,15 @@ const App = () => {
       console.error("Error getting last logged in account:", result.error);
       return;
     }
-    console.log("Last logged in account", result);
 
+    console.log("Last logged in account", result);
     return result;
   }
 
   async function createOnboardingSessionClient() {
     if (!walletClient) {
-      console.error("Error:", new Error("Connect wallet"));
-      alert("Connect wallet");
+      console.error("Wallet not connected");
+      alert("Connect your wallet");
       return;
     }
 
@@ -102,78 +101,87 @@ const App = () => {
     // listConnectedAddressAccounts();
     // getLastLoggedInAccount();
 
-    const info = {
+    console.log({
       IsConnected: account.isConnected,
       HasWalletClient: Boolean(walletClient),
       HasSessionClient: Boolean(sessionClient),
-    };
-    console.log(info);
+    });
+    
   }, [walletClient, account.isConnected, sessionClient]);
 
   useEffect(() => {
-    fetchAppByTxHash(client).then((app) => {
-      setApp(app);
-    });
+    fetchApplicationByTxHash(client)
+      .then((appDetails) => {
+        if (!appDetails) return;
+        setApp(appDetails);
+      })
+      .catch(console.error);
 
-    fetchAllUsers(client).then((result) => {
-      // items: Array<AppUser>: [{account: Account, lastActiveOn: DateTime, firstLoginOn: DateTime}, …]
-      const { items, pageInfo } = result;
-      setUsers(items);
-      console.log("Users:", items);
-    });
+    fetchAllUsers(client)
+      .then((paginated) => {
+      if (!paginated) return;
+      setUsers(paginated.items);
+      console.log("Users:", paginated.items);
+      })
+      .catch(console.error);
   }, []);
 
   return (
     <div className="p-5 space-y-5">
       <ConnectKitButton />
+
       {app && (
-        <div>
-          <p>Address {app.address}</p>
-          <p>CreatedAt {app.createdAt}</p>
-          <p>DefaultFeedAddress {app.defaultFeedAddress}</p>
-          <p>GraphAddress {app.graphAddress}</p>
-          <p>HasAuthorizationEndpoint {app.hasAuthorizationEndpoint}</p>
-          <p>Description {app.metadata.description}</p>
-          <p>Developer {app.metadata.developer}</p>
-          <p>Name {app.metadata.name}</p>
-          <p>Platforms {app.metadata.platforms.join(", ")}</p>
-          <p>Tagline {app.metadata.tagline}</p>
-          <p>Url {app.metadata.url}</p>
-          <p>NamespaceAddress {app.namespaceAddress}</p>
-          <p>Owner {app.owner}</p>
-          <p>SponsorshipAddress {app.sponsorshipAddress || "Null"}</p>
-          <p>TreasuryAddress {app.treasuryAddress || "Null"}</p>
-          <p>
-            VerificationEnabled {Boolean(app.verificationEnabled).toString()}
-          </p>
+        <div className="space-y-1">
+          <p><strong>Address:</strong> {app.address}</p>
+          <p><strong>Created At:</strong> {app.createdAt}</p>
+          <p><strong>Default Feed:</strong> {app.defaultFeedAddress}</p>
+          <p><strong>Graph:</strong> {app.graphAddress}</p>
+          <p><strong>Authorization Endpoint:</strong> {String(app.hasAuthorizationEndpoint)}</p>
+          <p><strong>Description:</strong> {app.metadata?.description}</p>
+          <p><strong>Developer:</strong> {app.metadata?.developer}</p>
+          <p><strong>Name:</strong> {app.metadata?.name}</p>
+          <p><strong>Platforms:</strong> {app.metadata?.platforms?.join(", ")}</p>
+          <p><strong>Tagline:</strong> {app.metadata?.tagline}</p>
+          <p><strong>URL:</strong> {app.metadata?.url}</p>
+          <p><strong>Namespace:</strong> {app.namespaceAddress}</p>
+          <p><strong>Owner:</strong> {app.owner}</p>
+          <p><strong>Sponsorship:</strong> {app.sponsorshipAddress || "Null"}</p>
+          <p><strong>Treasury:</strong> {app.treasuryAddress || "Null"}</p>
+          <p><strong>Verification:</strong> {String(app.verificationEnabled)}</p>
         </div>
       )}
+
       {users && (
         <div>
-          <h2>Users ({users.length})</h2>
-          <ol>
+          <h2 className="text-xl font-semibold">Users ({users.length})</h2>
+          <ol className="list-decimal ml-6 space-y-2">
             {users.map((item, idx) => (
-              <li key={idx} className="list-decimal">
+              <li key={idx}>
                 <img
-                  src={item.account.metadata?.picture}
+                  src={item.account.metadata?.picture ?? "lens-logo.png"}
                   alt="Account pic"
                   className="w-8 h-8 rounded-full mr-2 inline"
+                  onError={(e) => (e.currentTarget.src = "lens-logo.png")}
                 />
-                Username: {item.account.username?.localName || "Null"} Name:{" "}
-                {item.account.metadata?.name || "Null"} Addr: ...
-                {item.account.address.slice(37)} Owner: ...
-                {item.account.owner.slice(37)}
+                <span>
+                  Username: {item.account.username?.localName || "Null"} | Name:{" "}
+                  {item.account.metadata?.name || "Null"} | Addr: ...
+                  {item.account.address?.slice(-6)} | Owner: ...
+                  {item.account.owner?.slice(-6)}
+                </span>
               </li>
             ))}
           </ol>
         </div>
       )}
+
       <button
         className="bg-blue-500 text-white px-3 py-1 rounded mt-5"
         onClick={() => setShowSignupForm(!showSignupForm)}
       >
         Signup
       </button>
+
       {showSignupForm && (
         <SignupForm
           onboardingUserSessionClient={sessionClient}
