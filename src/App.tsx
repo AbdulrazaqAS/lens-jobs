@@ -10,8 +10,8 @@ import {
 
 import { setupOnboardingUser } from "./utils/users";
 import { client } from "./utils/client";
-import { AccountDetails } from "./utils/account";
 import { fetchApplicationByTxHash, fetchAllUsers } from "./utils/app";
+import NavBar from "./components/NavBar";
 
 import type { SessionClient, App, AppUser } from "@lens-protocol/client";
 
@@ -24,9 +24,12 @@ const App = () => {
   const { data: walletClient } = useWalletClient();
 
   const [app, setApp] = useState<App>();
-  const [users, setUsers] = useState<Readonly<AppUser[]>>();
+  const [users, setUsers] = useState<ReadonlyArray<AppUser>>();
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
+  const [page, setPage] = useState("dev");
+
+  const navs: ReadonlyArray<string> = ["Dev", "Feed", "Profile"];
 
   async function listConnectedAddressAccounts() {
     if (!client || !walletClient) {
@@ -127,8 +130,9 @@ const App = () => {
   }, []);
 
   return (
-    <div className="p-5 space-y-5">
-      <ConnectKitButton />
+    <div className="p-5 space-y-5 pt-20">
+      {/* <ConnectKitButton /> */}
+      <NavBar navs={navs} setPage={setPage} />
 
       {app && (
         <div className="space-y-1">
@@ -176,7 +180,7 @@ const App = () => {
       )}
 
       <button
-        className="bg-blue-500 text-white px-3 py-1 rounded mt-5"
+        className="bg-blue-500 text-white px-3 py-1 rounded mt-5 cursor-pointer hover:bg-blue-700 transition"
         onClick={() => setShowSignupForm(!showSignupForm)}
       >
         Signup
