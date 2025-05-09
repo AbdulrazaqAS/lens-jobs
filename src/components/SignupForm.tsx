@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { AccountMetadata, account } from "@lens-protocol/metadata";
 import { storageClient } from "../utils/storage-client";
 import { immutable } from "@lens-chain/storage-client";
@@ -52,7 +52,7 @@ export default function SignupForm({
     return uri;
   }
 
-  async function submitForm(e) {
+  async function submitForm(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!walletClient) {
@@ -72,6 +72,10 @@ export default function SignupForm({
         sessionClient = await createOnboardingSessionClient();
       }
 
+      if (!sessionClient) {
+        console.error("Session client not created");
+        return;
+      }
 
       console.log("Session client", sessionClient);
       const pictureUri = await uplaodPicture(picture!);

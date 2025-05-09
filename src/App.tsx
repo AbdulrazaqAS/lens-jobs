@@ -164,8 +164,8 @@ const App = () => {
                   onError={(e) => (e.currentTarget.src = "lens-logo.png")}
                 />
                 <span>
-                  Username: {item.account.username?.localName || "Null"} | Name:{" "}
-                  {item.account.metadata?.name || "Null"} | Addr: ...
+                  Username: {item.account.username?.localName ?? "Null"} | Name:{" "}
+                  {item.account.metadata?.name ?? "Null"} | Addr: ...
                   {item.account.address?.slice(-6)} | Owner: ...
                   {item.account.owner?.slice(-6)}
                 </span>

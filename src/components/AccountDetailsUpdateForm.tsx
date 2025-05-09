@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { MetadataAttributeType } from "@lens-protocol/metadata";
 
 interface Attribute {
@@ -61,7 +61,7 @@ export default function AccountDetailsUpdateForm({
     return metadata;
   };
 
-  function submitForm(e) {
+  function submitForm(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const metadata = generateMetadata();
