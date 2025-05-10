@@ -141,7 +141,7 @@ const App = () => {
         const accts = await listConnectedAddressAccounts();
         if (!accts || accts.items.length === 0) return;  // have not created any account
         setCurrentAccount(accts.items[0].account); // pick the first one
-        alert`Logged in account: ${accts.items[0].account.address}`)
+        alert(`Logged in account: ${accts.items[0].account.address}`);
       } catch (error) {
         console.error("Error picking current account", error);
       }
@@ -151,7 +151,7 @@ const App = () => {
       .then(() => {
         alert("Account loaded");
         console.log("Current account picked", currentAccount);
-      })
+      });
 
     console.log({
       IsConnected: account.isConnected,
