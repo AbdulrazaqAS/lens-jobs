@@ -7,15 +7,16 @@ import {
   fetchAccountsAvailable,
 } from "@lens-protocol/client/actions";
 
-import { setupOnboardingUser } from "./utils/users";
-import { client } from "./utils/client";
+import { client, setupAccountOwnerSessionClient, setupOnboardingSessionClient } from "./utils/client";
 import { fetchApplicationByTxHash, fetchAllUsers } from "./utils/app";
 
-import type { SessionClient, App, AppUser } from "@lens-protocol/client";
+import type { SessionClient, App, AppUser, Account } from "@lens-protocol/client";
 
 import NavBar from "./components/NavBar";
 import SignupForm from "./components/SignupForm";
 import AccountProfilePage from "./components/AccountProfilePage";
+
+const APP_ADDRESS = import.meta.env.VITE_APP_ADDRESS;
 
 // Read Authentication > Advanced > Authentication Tokens: To authenticated your app's users
 // TODO: Is account needed, walletClient has account inside
@@ -29,6 +30,7 @@ const App = () => {
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
   const [page, setPage] = useState("dev");
+  const [currentAccount, setCurrentAccount] = useState<Account>();
 
   const navs: ReadonlyArray<string> = ["Dev", "Feed", "Profile"];
 
@@ -44,7 +46,6 @@ const App = () => {
     });
 
     if (result.isErr()) {
-      console.error("Error fetching address' accounts:", result.error);
       throw result.error;
     }
 
@@ -65,16 +66,15 @@ const App = () => {
 
     const result = await lastLoggedInAccount(client, {
       address: evmAddress(walletClient.account.address),
-      // app: evmAddress{TESTNET_APP}  // Specific app, omit for all apps
+      app: evmAddress(APP_ADDRESS)  // Specific app, omit for all apps
     });
 
     if (result.isErr()) {
-      console.error("Error getting last logged in account:", result.error);
-      return;
+      throw result.error;
     }
 
     console.log("Last logged in account", result);
-    return result;
+    return result.value;
   }
 
   async function createOnboardingSessionClient() {
@@ -85,7 +85,7 @@ const App = () => {
     }
 
     try {
-      const user = await setupOnboardingUser({ client, walletClient });
+      const user = await setupOnboardingSessionClient({ walletClient });
       if (user) {
         setSessionClient(user);
         return user;
@@ -95,15 +95,60 @@ const App = () => {
     }
   }
 
-  useEffect(() => {
-    // if (!walletClient || !account.isConnected || sessionClient) return;
-    if (!walletClient || !account.isConnected) return;
+  async function createAccountOwnerSessionClient() {
+    if (!walletClient) {
+      console.error("Wallet not connected");
+      alert("Connect your wallet");
+      return;
+    }
 
-    // setupOnboardingUser({client, walletClient}).then(async () => {
-    //   console.log("Session client loaded");
-    // });
-    // listConnectedAddressAccounts();
-    // getLastLoggedInAccount();
+    try {
+      let lastAcct = await getLastLoggedInAccount();
+      if (!lastAcct) {
+        const walletAccts = await listConnectedAddressAccounts();
+        if (!walletAccts || walletAccts.items.length === 0) return;  // have not created any account
+
+        lastAcct = walletAccts.items[0].account; // pick the first one
+      }
+
+      const lastAccountAddr = lastAcct.address;
+
+      const user = await setupAccountOwnerSessionClient({ walletClient, accountAddr: lastAccountAddr });
+      if (user) {
+        setSessionClient(user);
+        return user;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Get whether wallet has an account
+  useEffect(() => {
+    if (!account.isConnected) return;
+    
+    async function pickCurrentAccount(){
+      try {
+        const lastAcct = await getLastLoggedInAccount();
+        if (lastAcct) {
+          setCurrentAccount(lastAcct);
+          console.log("Last logged in account detected");
+          return;
+        }
+  
+        // If no last account, get the first one
+        const accts = await listConnectedAddressAccounts();
+        if (!accts || accts.items.length === 0) return;  // have not created any account
+        setCurrentAccount(accts.items[0].account); // pick the first one
+      } catch (error) {
+        console.error("Error picking current account", error);
+      }
+    }
+
+    pickCurrentAccount()
+      .then(() => {
+        console.log("Current account picked", currentAccount);
+      })
 
     console.log({
       IsConnected: account.isConnected,
@@ -111,7 +156,7 @@ const App = () => {
       HasSessionClient: Boolean(sessionClient),
     });
 
-  }, [walletClient, account.isConnected, sessionClient]);
+  }, [walletClient, account.isConnected]);
 
   useEffect(() => {
     fetchApplicationByTxHash(client)
@@ -182,12 +227,15 @@ const App = () => {
             </div>
           )}
 
-          <button
-            className="bg-blue-500 text-white px-3 py-1 rounded mt-5 cursor-pointer hover:bg-blue-700 transition"
-            onClick={() => setShowSignupForm(!showSignupForm)}
-          >
-            Signup
-          </button>
+          {/* Show signup only if connected */}
+          {account.isConnected &&
+            <button
+              className="bg-blue-500 text-white px-3 py-1 rounded mt-5 cursor-pointer hover:bg-blue-700 transition"
+              onClick={() => setShowSignupForm(!showSignupForm)}
+            >
+              Signup
+            </button>
+          }
 
           {showSignupForm && (
             <SignupForm
