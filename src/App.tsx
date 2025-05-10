@@ -251,7 +251,7 @@ const App = () => {
       )}
 
       {page === "feed" && <div>Feed</div>}
-      {page === "profile" && currentAccount && <AccountProfilePage user={user} />}
+      {page === "profile" && currentAccount && <AccountProfilePage user={currentAccount} />}
 
     </div>
   );
