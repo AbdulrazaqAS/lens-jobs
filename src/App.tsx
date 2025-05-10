@@ -26,7 +26,7 @@ const App = () => {
 
   const [app, setApp] = useState<App>();
   const [users, setUsers] = useState<ReadonlyArray<AppUser>>();
-  const [user, setUser] = useState<AppUser>();
+  //const [user, setUser] = useState<AppUser>();
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
   const [page, setPage] = useState("dev");
@@ -133,6 +133,7 @@ const App = () => {
         if (lastAcct) {
           setCurrentAccount(lastAcct);
           console.log("Last logged in account detected");
+          alert("Last logged in account detected");
           return;
         }
   
@@ -140,6 +141,7 @@ const App = () => {
         const accts = await listConnectedAddressAccounts();
         if (!accts || accts.items.length === 0) return;  // have not created any account
         setCurrentAccount(accts.items[0].account); // pick the first one
+        alert`Logged in account: ${accts.items[0].account.address}`)
       } catch (error) {
         console.error("Error picking current account", error);
       }
@@ -147,6 +149,7 @@ const App = () => {
 
     pickCurrentAccount()
       .then(() => {
+        alert("Account loaded");
         console.log("Current account picked", currentAccount);
       })
 
@@ -248,7 +251,7 @@ const App = () => {
       )}
 
       {page === "feed" && <div>Feed</div>}
-      {page === "profile" && user && <AccountProfilePage user={user} />}
+      {page === "profile" && currentAccount && <AccountProfilePage user={user} />}
 
     </div>
   );
