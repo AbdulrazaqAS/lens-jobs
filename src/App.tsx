@@ -141,7 +141,7 @@ const App = () => {
           return;
         }
   
-        // If no last account, get the first one
+        // If no last account, get the first one from all connected address accounts
         const accts = await listConnectedAddressAccounts();
         if (!accts || accts.items.length === 0) return;  // have not created any account
         setCurrentAccount(accts.items[0].account); // pick the first one
@@ -156,6 +156,24 @@ const App = () => {
     pickCurrentAccount();
 
   }, [walletClient, account.isConnected]);
+
+  useEffect(() => {
+    if (!currentAccount) return;
+
+    createAccountOwnerSessionClient().then((sessionClient) => {
+      if (!sessionClient) return;
+      setSessionClient(sessionClient);
+      console.log("Session client created", sessionClient);
+    }).catch((error) => {
+      console.error("Error creating session client", error);
+    });
+
+    // Logout session client when account changes
+    return () => {
+      logOutAuthenticatedSession();
+      setSessionClient(undefined);
+    };
+  }, [currentAccount]);
 
   useEffect(() => {
     fetchApplicationByTxHash(client)
