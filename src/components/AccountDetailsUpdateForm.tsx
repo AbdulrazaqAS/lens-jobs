@@ -2,7 +2,7 @@ import { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { account, MetadataAttribute, MetadataAttributeType } from "@lens-protocol/metadata";
 import { AccountOptions } from "@lens-protocol/metadata";
 import { uploadFile } from "../utils/storage-client";
-import { AppUser } from "@lens-protocol/client";
+import { Account } from "@lens-protocol/client";
 
 interface BooleanAttribute {
   key: string;
@@ -20,12 +20,12 @@ interface OtherAttribute {
 type Attribute = BooleanAttribute | OtherAttribute;
 
 interface Props {
-  user: AppUser;
+  currentAccount: Account;
 }
 
-export default function AccountDetailsUpdateForm({ user }: Props) {
-  const [name, setName] = useState(user.account.metadata?.name ?? "");
-  const [bio, setBio] = useState(user.account.metadata?.bio ?? "");
+export default function AccountDetailsUpdateForm({ currentAccount }: Props) {
+  const [name, setName] = useState(currentAccount.metadata?.name ?? "");
+  const [bio, setBio] = useState(currentAccount.metadata?.bio ?? "");
   const [picture, setPicture] = useState<File>();
   const [coverPicture, setCoverPicture] = useState<File>();
   // TODO: Add state for current pic and render it
@@ -96,8 +96,8 @@ export default function AccountDetailsUpdateForm({ user }: Props) {
   async function submitForm(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    let pictureUri = user.account.metadata?.picture;
-    let coverPictureUri = user.account.metadata?.coverPicture;
+    let pictureUri = currentAccount.metadata?.picture;
+    let coverPictureUri = currentAccount.metadata?.coverPicture;
 
     if (picture) pictureUri = await uploadFile(picture);
     if (coverPicture) coverPictureUri = await uploadFile(coverPicture);
@@ -123,7 +123,7 @@ export default function AccountDetailsUpdateForm({ user }: Props) {
   useEffect(() => {
     const attrs = attributes.map(attr => {
       // The current value from user data
-      const rawValue = user.account.metadata?.attributes.find(attr_ => attr.key === attr_.key)?.value;
+      const rawValue = currentAccount.metadata?.attributes.find(attr_ => attr.key === attr_.key)?.value;
 
       if (attr.type === MetadataAttributeType.BOOLEAN) {
         let value: "true" | "false" = attr.value === "true" ? "true" : "false"; // fallback value from default values
@@ -146,7 +146,7 @@ export default function AccountDetailsUpdateForm({ user }: Props) {
     });
 
     setAttributes(attrs);
-  }, [user]);
+  }, [currentAccount]);
 
   return (
     <form onSubmit={submitForm} className="p-4 max-w-2xl mx-auto space-y-4">
@@ -161,7 +161,7 @@ export default function AccountDetailsUpdateForm({ user }: Props) {
         required
       />
 
-      <p className="text-md font-medium">Username: {"abdulrazaq_"}</p>
+      <p className="text-md font-medium">Username: {currentAccount.username?.localName}</p>
 
       {/* TODO: Show selected/current pic */}
       <input

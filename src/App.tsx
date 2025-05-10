@@ -26,7 +26,6 @@ const App = () => {
 
   const [app, setApp] = useState<App>();
   const [users, setUsers] = useState<ReadonlyArray<AppUser>>();
-  const [user, setUser] = useState<AppUser>();
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
   const [page, setPage] = useState("dev");
@@ -125,6 +124,12 @@ const App = () => {
 
   // Get whether wallet has an account
   useEffect(() => {
+    console.log({
+      IsConnected: account.isConnected,
+      HasWalletClient: Boolean(walletClient),
+      HasSessionClient: Boolean(sessionClient),
+    });
+    
     if (!account.isConnected) return;
     
     async function pickCurrentAccount(){
@@ -140,21 +145,15 @@ const App = () => {
         const accts = await listConnectedAddressAccounts();
         if (!accts || accts.items.length === 0) return;  // have not created any account
         setCurrentAccount(accts.items[0].account); // pick the first one
+
+        console.log("Connected wallet has", accts.items.length, "accounts");
+        console.log("Active account set", accts.items[0].account);
       } catch (error) {
         console.error("Error picking current account", error);
       }
     }
 
-    pickCurrentAccount()
-      .then(() => {
-        console.log("Current account picked", currentAccount);
-      })
-
-    console.log({
-      IsConnected: account.isConnected,
-      HasWalletClient: Boolean(walletClient),
-      HasSessionClient: Boolean(sessionClient),
-    });
+    pickCurrentAccount();
 
   }, [walletClient, account.isConnected]);
 
@@ -248,7 +247,7 @@ const App = () => {
       )}
 
       {page === "feed" && <div>Feed</div>}
-      {page === "profile" && user && <AccountProfilePage user={user} />}
+      {page === "profile" && currentAccount && <AccountProfilePage currentAccount={currentAccount} />}
 
     </div>
   );
