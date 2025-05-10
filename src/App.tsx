@@ -25,6 +25,7 @@ const App = () => {
 
   const [app, setApp] = useState<App>();
   const [users, setUsers] = useState<ReadonlyArray<AppUser>>();
+  const [user, setUser] = useState<AppUser>();
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
   const [page, setPage] = useState("dev");
@@ -130,7 +131,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="p-5 space-y-5 pt-20">
+    <div className="p-5 space-y-5 pt-23">
       {/* <ConnectKitButton /> */}
       <NavBar navs={navs} setPage={setPage} />
 
@@ -199,7 +200,7 @@ const App = () => {
       )}
 
       {page === "feed" && <div>Feed</div>}
-      {page === "profile" && <AccountProfilePage />}
+      {page === "profile" && user && <AccountProfilePage user={user} />}
 
     </div>
   );

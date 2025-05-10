@@ -1,8 +1,6 @@
 import { useState, FormEvent } from "react";
-import { AccountMetadata, account } from "@lens-protocol/metadata";
-import { storageClient } from "../utils/storage-client";
-import { immutable } from "@lens-chain/storage-client";
-import { chains } from "@lens-chain/sdk/viem";
+import { account } from "@lens-protocol/metadata";
+import { uploadFile, uplaodMetadata } from "../utils/storage-client";
 import {
   switchToAccount,
   createNewAccountWithUsername,
@@ -16,14 +14,6 @@ type Props = {
   walletClient?: WalletClient;
   createOnboardingSessionClient: Function;
 };
-
-async function uplaodPicture(picture: File) {
-  const { uri } = await storageClient.uploadFile(picture, {
-    acl: immutable(chains.testnet.id),
-  });
-
-  return uri;
-}
 
 export default function SignupForm({
   walletClient,
@@ -43,14 +33,6 @@ export default function SignupForm({
 
     return account(metadata);
   };
-
-  async function uplaodMetadata(metadata: AccountMetadata) {
-    const { uri } = await storageClient.uploadAsJson(metadata, {
-      acl: immutable(chains.testnet.id),
-    });
-
-    return uri;
-  }
 
   async function submitForm(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -78,7 +60,7 @@ export default function SignupForm({
       }
 
       console.log("Session client", sessionClient);
-      const pictureUri = await uplaodPicture(picture!);
+      const pictureUri = await uploadFile(picture!);
       console.log("Picture Uri", pictureUri);
       const metadata = generateMetadata(pictureUri);
       const metadataUri = await uplaodMetadata(metadata);
@@ -133,7 +115,6 @@ export default function SignupForm({
         placeholder="Picture URL"
         type="file"
         accept="image/*"
-        // value={picture?.name}
         onChange={(e) => setPicture(e.target.files![0])}
         className="w-full border p-2 rounded"
         required

@@ -1,7 +1,12 @@
+import { AppUser } from '@lens-protocol/client';
 import AccountDetailsUpdateForm from './AccountDetailsUpdateForm';
 
-export default function AccountProfilePage() {
+interface Props {
+    user: AppUser;
+}
+
+export default function AccountProfilePage({user}: Props ) {
     return (
-        <AccountDetailsUpdateForm />
+        <AccountDetailsUpdateForm user={user}/>
     );
 }
