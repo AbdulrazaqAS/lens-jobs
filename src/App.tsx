@@ -32,7 +32,7 @@ const App = () => {
   const [page, setPage] = useState("dev");
   const [currentAccount, setCurrentAccount] = useState<Account>();
 
-  const navs = ["Dev", "Feed"];
+  const navs = ["Dev", "Jobs", "Profile"];
 
   async function logOutAuthenticatedSession() {
     // Acct Owner and manager only
@@ -147,7 +147,6 @@ const App = () => {
     // Will not allow onboarding session client to pass here
     if (!sessionClient || !currentAccount) return;
 
-    navs.push("Profile");  // Add profile page if session client is available
   }, [sessionClient]);
 
   useEffect(() => {
@@ -248,7 +247,7 @@ const App = () => {
         </>
       )}
 
-      {page === "feed" && <FeedsPage sessionClient={sessionClient} />}
+      {page === "jobs" && <FeedsPage sessionClient={sessionClient} />}
       {page === "profile" && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} sessionClient={sessionClient!}/>}
 
     </div>
