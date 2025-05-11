@@ -15,6 +15,7 @@ import type { SessionClient, App, AppUser, Account } from "@lens-protocol/client
 import NavBar from "./components/NavBar";
 import SignupForm from "./components/SignupForm";
 import AccountProfilePage from "./components/AccountProfilePage";
+import { FeedsPage } from "./components/FeedsPage";
 
 const APP_ADDRESS = import.meta.env.VITE_APP_ADDRESS;
 
@@ -166,7 +167,7 @@ const App = () => {
 
         const usersAccounts = users?.map(async (user) => {
           const paginated = await listAddressAccounts(user.account.owner);
-          console.log("User accounts:", user.account.owner.slice(-6), paginated.items);
+          // console.log("User accounts:", user.account.owner.slice(-6), paginated.items);
           return paginated.items;
         });
         console.log("Users accounts:", await Promise.all(usersAccounts));
@@ -247,7 +248,7 @@ const App = () => {
         </>
       )}
 
-      {page === "feed" && <div>Feed</div>}
+      {page === "feed" && <FeedsPage sessionClient={sessionClient} />}
       {page === "profile" && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} sessionClient={sessionClient!}/>}
 
     </div>
