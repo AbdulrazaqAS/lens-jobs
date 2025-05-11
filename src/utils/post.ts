@@ -1,4 +1,4 @@
-import { SessionClient, uri, txHash, evmAddress } from "@lens-protocol/client";
+import { SessionClient, uri, txHash, evmAddress, AnyClient } from "@lens-protocol/client";
 import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
 import { WalletClient } from "viem";
@@ -86,8 +86,8 @@ export async function fetchAccountRecommendedJobs(addr: string) {
     return result.value;
 }
 
-export async function fetchJobsToExplore(sessionClient: SessionClient | undefined) {
-    const result = await fetchPostsToExplore(sessionClient ?? client, {
+export async function fetchJobsToExplore(anyClient: AnyClient = client) {
+    const result = await fetchPostsToExplore(anyClient, {
         shuffle: false,
     });
 
