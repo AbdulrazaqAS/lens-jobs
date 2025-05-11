@@ -81,9 +81,11 @@ export default function SignupForm({
         address: account?.address,
       });
       setSessionClient(accountOwnerSessionClient);
-
+      // TODO: make profile page available on changing client
+      alert("Session client updated");
       console.log("Account owner session client created", accountOwnerSessionClient);
     } catch (error) {
+      alert(error);
       console.error("Error creating account:", error);
     } finally {
       setIsCreating(false);
