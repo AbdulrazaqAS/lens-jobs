@@ -38,7 +38,8 @@ export default function NewJobPostForm({sessionClient}: Props) {
             const metadata = generateMetadata();
             const metadataUri = await uplaodMetadata(metadata);
             const txHash = await postJob({sessionClient, walletClient, metadataUri});
-            
+            console.log("Post txHash", txHash);
+
             alert("Job posted successfully!");
             setTitle("");
             setContent("");
