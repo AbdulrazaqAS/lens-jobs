@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { ConnectKitButton } from "connectkit";
-import { navs } from "../utils/constants";
+import { Navs } from "../utils/constants";
 
 export default function NavBar({ setPage } : {setPage: Function}) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -13,13 +13,13 @@ export default function NavBar({ setPage } : {setPage: Function}) {
 
         {/* Desktop Nav */}
         <ul className="hidden md:flex gap-6 text-gray-700 font-medium">
-          {navs.map((nav) => (
+          {Object.values(Navs).map((nav) => (
             <li
               key={nav}
-              onClick={() => setPage(nav.toLowerCase())}
+              onClick={() => setPage(nav)}
               className="cursor-pointer hover:text-blue-600 transition"
             >
-              {nav}
+              {`${nav.charAt(0).toUpperCase()}${nav.substring(1)}`}
             </li>
           ))}
         </ul>
@@ -46,16 +46,16 @@ export default function NavBar({ setPage } : {setPage: Function}) {
       {menuOpen && (
         <div className="md:hidden px-4 pb-4 pt-2 bg-white border-t">
           <ul className="flex flex-col gap-3 text-gray-700">
-            {navs.map((nav) => (
+            {Object.values(Navs).map((nav) => (
               <li
                 key={nav}
                 onClick={() => {
-                  setPage(nav.toLowerCase());
+                  setPage(nav);
                   setMenuOpen(false);
                 }}
                 className="cursor-pointer hover:text-blue-600 transition"
               >
-                {nav}
+                {`${nav.charAt(0).toUpperCase()}${nav.substring(1)}`}
               </li>
             ))}
           </ul>

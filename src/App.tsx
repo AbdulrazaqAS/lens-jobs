@@ -16,6 +16,7 @@ import NavBar from "./components/NavBar";
 import SignupForm from "./components/SignupForm";
 import AccountProfilePage from "./components/AccountProfilePage";
 import { FeedsPage } from "./components/FeedsPage";
+import { Navs } from "./utils/constants";
 
 const APP_ADDRESS = import.meta.env.VITE_APP_ADDRESS;
 
@@ -177,7 +178,7 @@ const App = () => {
       {/* <ConnectKitButton /> */}
       <NavBar setPage={setPage} />
 
-      {page === "dev" && (
+      {page === Navs.dev && (
         <>
           {app && (
             <div className="space-y-1">
@@ -245,8 +246,8 @@ const App = () => {
         </>
       )}
 
-      {page === "jobs" && <FeedsPage sessionClient={sessionClient} />}
-      {page === "profile" && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} sessionClient={sessionClient!}/>}
+      {page === Navs.jobs && <FeedsPage sessionClient={sessionClient} />}
+      {page === Navs.profile && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} sessionClient={sessionClient!}/>}
 
     </div>
   );

@@ -1,4 +1,12 @@
-export const navs: ReadonlyArray<string> = ["Dev", "Jobs", "Profile"];
+export const Navs: Readonly<{
+    dev: string;
+    jobs: string;
+    profile: string;
+}> = {
+    dev: "dev",
+    jobs: "jobs",
+    profile: "profile"
+}
 
 export enum AccountModes {
     Freelancer,
