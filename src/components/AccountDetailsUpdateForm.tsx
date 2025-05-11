@@ -27,7 +27,7 @@ interface Props {
 }
 
 export default function AccountDetailsUpdateForm({ currentAccount, sessionClient }: Props) {
-  const {data: walletClient} = useWalletClient();
+  const { data: walletClient } = useWalletClient();
 
   const [name, setName] = useState(currentAccount.metadata?.name ?? "");
   const [bio, setBio] = useState(currentAccount.metadata?.bio ?? "");
@@ -73,6 +73,12 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
           type: MetadataAttributeType.BOOLEAN,
           value: attr.value,
         };
+      } else if (attr.type === MetadataAttributeType.DATE) {
+        return {
+          key: attr.key,
+          type: attr.type as OtherAttributes,
+          value: (new Date(attr.value)).toISOString(),
+        };
       } else {
         return {
           key: attr.key,
@@ -81,18 +87,17 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
         };
       }
     });
-
+    
     return attrs;
   }
 
-  const generateMetadata = (pictureUri: string, coverPictureUri: string) => {
+  const generateMetadata = (pictureUri: string) => {
     const attrs = getAttributes();
 
     const metadata: AccountOptions = {
       name,
       bio,
       picture: pictureUri,
-      coverPicture: coverPictureUri,
       attributes: attrs,
     };
 
@@ -107,26 +112,27 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
       return;
     }
 
-    let pictureUri = currentAccount.metadata?.picture;
-    let coverPictureUri = currentAccount.metadata?.coverPicture;
+    let pictureUri = currentAccount.metadata?.picture ?? "";
+    //let coverPictureUri = currentAccount.metadata?.coverPicture ?? "";
     setIsUpdating(true);
 
     try {
       if (picture) pictureUri = await uploadFile(picture);
-      if (coverPicture) coverPictureUri = await uploadFile(coverPicture);
-  
-      const metadata = generateMetadata(pictureUri, coverPictureUri);
+      //if (coverPicture) coverPictureUri = await uploadFile(coverPicture);
+
+      const metadata = generateMetadata(pictureUri);
       const metadataUri = await uplaodMetadata(metadata);
       console.log("Metadata URI:", metadataUri);
-      const txHash = await updateAccountMetadata({metadataUri, sessionClient, walletClient})
+      const txHash = await updateAccountMetadata({ metadataUri, sessionClient, walletClient })
       console.log("Account info updated. TxHash:", txHash);
     } catch (error) {
+      alert(error)
       console.error("Error updating account info:", error);
     } finally {
       setIsUpdating(false);
     }
   }
-  
+
   useEffect(() => {
     const attrs = attributes.map(attr => {
       // The current value from user data
@@ -141,6 +147,17 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
           value: "true" | "false";
           key: string;
           type: MetadataAttributeType.BOOLEAN;
+        };
+      } else if (attr.type === MetadataAttributeType.DATE) {
+        let value: string;
+
+        if (rawValue) value = new Date(rawValue).toISOString().split('T')[0];
+        else value = attr.value;
+
+        return { ...attr, value } as {
+          value: string;
+          key: string;
+          type: OtherAttributes;
         };
       } else {
         let value: string = rawValue ?? attr.value;
@@ -193,6 +210,7 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
         value={bio}
         onChange={(e) => setBio(e.target.value)}
         className="w-full border p-2 rounded"
+        required
       />
 
       <div>
@@ -205,7 +223,8 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
               value={attr.value}
               onChange={(e) => handleAttributeChange(index, e.target.value)}
               className="border p-2 rounded w-1/2"
-            // Make dob and such required
+              // Make dob and such required
+              required={attr.type === MetadataAttributeType.DATE}
             />
           </div>
         ))}
