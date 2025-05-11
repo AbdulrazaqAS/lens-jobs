@@ -4,6 +4,7 @@ import {
   createAccountWithUsername,
   fetchAccount,
   switchAccount,
+  fetchAccountsAvailable,
 } from "@lens-protocol/client/actions";
 import { AccountMetadataDetails } from "@lens-protocol/metadata";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@lens-protocol/client";
 import { WalletClient } from "viem";
 import { handleOperationWith } from "@lens-protocol/client/viem";
+import { client } from "./client";
 
 interface UsernameMetadata {
   id: string;
@@ -77,19 +79,20 @@ export async function updateAccountMetadata({
   sessionClient: SessionClient;
   walletClient: WalletClient;
 }) {
-  await setAccountMetadata(sessionClient, {
+  const result = await setAccountMetadata(sessionClient, {
     metadataUri: uri(metadataUri),
   }).andThen(handleOperationWith(walletClient)); // TODO: sponsor this
-  // No need to wait for mining
+  // No need to wait for mining. Will this improve UX?
+
+  if (result.isErr()) {
+    console.error("Transaction failed:", result.error);
+    throw result.error;
+  }
+
+  return result.value;
 }
 
-export async function fetchAccountByTxHash({
-  client,
-  trxHash,
-}: {
-  client: AnyClient;
-  trxHash: string;
-}) {
+export async function fetchAccountByTxHash(trxHash:string){
   const result = await fetchAccount(client, {
     txHash: txHash(trxHash),
   });
@@ -119,3 +122,16 @@ export async function switchToAccount({
 
   return result.value;
 }
+
+export async function listAddressAccounts(address: string) {
+    const result = await fetchAccountsAvailable(client, {
+      managedBy: evmAddress(address),
+      includeOwned: true,
+    });
+
+    if (result.isErr()) {
+      throw result.error;
+    }
+
+    return result.value;
+  }

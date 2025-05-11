@@ -1,8 +1,10 @@
 import { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { account, MetadataAttribute, MetadataAttributeType } from "@lens-protocol/metadata";
 import { AccountOptions } from "@lens-protocol/metadata";
-import { uploadFile } from "../utils/storage-client";
-import { Account } from "@lens-protocol/client";
+import { uplaodMetadata, uploadFile } from "../utils/storage-client";
+import { Account, SessionClient } from "@lens-protocol/client";
+import { updateAccountMetadata } from "../utils/account";
+import { useWalletClient } from "wagmi";
 
 interface BooleanAttribute {
   key: string;
@@ -21,13 +23,17 @@ type Attribute = BooleanAttribute | OtherAttribute;
 
 interface Props {
   currentAccount: Account;
+  sessionClient: SessionClient
 }
 
-export default function AccountDetailsUpdateForm({ currentAccount }: Props) {
+export default function AccountDetailsUpdateForm({ currentAccount, sessionClient }: Props) {
+  const {data: walletClient} = useWalletClient();
+
   const [name, setName] = useState(currentAccount.metadata?.name ?? "");
   const [bio, setBio] = useState(currentAccount.metadata?.bio ?? "");
   const [picture, setPicture] = useState<File>();
   const [coverPicture, setCoverPicture] = useState<File>();
+  const [isUpdating, setIsUpdating] = useState(false);
   // TODO: Add state for current pic and render it
   const [attributes, setAttributes] = useState<Attribute[]>([
     {
@@ -96,29 +102,30 @@ export default function AccountDetailsUpdateForm({ currentAccount }: Props) {
   async function submitForm(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    if (!walletClient) {
+      console.error("Wallet client is not available");
+      return;
+    }
+
     let pictureUri = currentAccount.metadata?.picture;
     let coverPictureUri = currentAccount.metadata?.coverPicture;
+    setIsUpdating(true);
 
-    if (picture) pictureUri = await uploadFile(picture);
-    if (coverPicture) coverPictureUri = await uploadFile(coverPicture);
-
-    const metadata = generateMetadata(pictureUri, coverPictureUri);
-    console.log("Account Metadata:", metadata);
+    try {
+      if (picture) pictureUri = await uploadFile(picture);
+      if (coverPicture) coverPictureUri = await uploadFile(coverPicture);
+  
+      const metadata = generateMetadata(pictureUri, coverPictureUri);
+      const metadataUri = await uplaodMetadata(metadata);
+      console.log("Metadata URI:", metadataUri);
+      const txHash = await updateAccountMetadata({metadataUri, sessionClient, walletClient})
+      console.log("Account info updated. TxHash:", txHash);
+    } catch (error) {
+      console.error("Error updating account info:", error);
+    } finally {
+      setIsUpdating(false);
+    }
   }
-
-  // useEffect(() => {
-  //   const attrs = attributes.map(attr => {
-  //     let value: string | "true" | "false" | undefined;
-  //     value = user.account.metadata?.attributes.find(attr_ => attr.key === attr_.key)?.value as typeof value;
-  //     if (attr.type === MetadataAttributeType.BOOLEAN) value = value ?? attr.value;
-  //     else value = value ?? attr.value;
-
-  //     return {...attr, value}
-  //   });
-
-  //   setAttributes(attrs);
-    
-  // }, [user]);
   
   useEffect(() => {
     const attrs = attributes.map(attr => {
@@ -207,9 +214,10 @@ export default function AccountDetailsUpdateForm({ currentAccount }: Props) {
       {/* TODO: Disable btn until something has been updated */}
       <button
         type="submit"
+        disabled={isUpdating}
         className="bg-green-600 text-white px-4 py-2 rounded"
       >
-        Update
+        {isUpdating ? "Updating..." : "Update"}
       </button>
     </form>
   );

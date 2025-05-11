@@ -4,11 +4,11 @@ import { useAccount, useWalletClient } from "wagmi";
 import { evmAddress } from "@lens-protocol/client";
 import {
   lastLoggedInAccount,
-  fetchAccountsAvailable,
 } from "@lens-protocol/client/actions";
 
 import { client, setupAccountOwnerSessionClient, setupOnboardingSessionClient } from "./utils/client";
 import { fetchApplicationByTxHash, fetchAllUsers } from "./utils/app";
+import { listAddressAccounts } from "./utils/account";
 
 import type { SessionClient, App, AppUser, Account } from "@lens-protocol/client";
 
@@ -31,26 +31,7 @@ const App = () => {
   const [page, setPage] = useState("dev");
   const [currentAccount, setCurrentAccount] = useState<Account>();
 
-  const navs: ReadonlyArray<string> = ["Dev", "Feed", "Profile"];
-
-  async function listConnectedAddressAccounts() {
-    if (!client || !walletClient) {
-      // console.error("Listing available accounts not ready");
-      return;
-    }
-
-    const result = await fetchAccountsAvailable(client, {
-      managedBy: evmAddress(walletClient.account.address),
-      includeOwned: true,
-    });
-
-    if (result.isErr()) {
-      throw result.error;
-    }
-
-    console.log("Connected Address Accounts", result.value);
-    return result.value;
-  }
+  const navs = ["Dev", "Feed"];
 
   async function logOutAuthenticatedSession() {
     // Acct Owner and manager only
@@ -95,24 +76,10 @@ const App = () => {
   }
 
   async function createAccountOwnerSessionClient() {
-    if (!walletClient) {
-      console.error("Wallet not connected");
-      alert("Connect your wallet");
-      return;
-    }
+    if (!walletClient) return;
 
     try {
-      let lastAcct = await getLastLoggedInAccount();
-      if (!lastAcct) {
-        const walletAccts = await listConnectedAddressAccounts();
-        if (!walletAccts || walletAccts.items.length === 0) return;  // have not created any account
-
-        lastAcct = walletAccts.items[0].account; // pick the first one
-      }
-
-      const lastAccountAddr = lastAcct.address;
-
-      const user = await setupAccountOwnerSessionClient({ walletClient, accountAddr: lastAccountAddr });
+      const user = await setupAccountOwnerSessionClient({ walletClient, accountAddr: currentAccount!.address });
       if (user) {
         setSessionClient(user);
         return user;
@@ -142,7 +109,7 @@ const App = () => {
         }
   
         // If no last account, get the first one from all connected address accounts
-        const accts = await listConnectedAddressAccounts();
+        const accts = await listAddressAccounts(account.address!);
         if (!accts || accts.items.length === 0) return;  // have not created any account
         setCurrentAccount(accts.items[0].account); // pick the first one
 
@@ -176,6 +143,13 @@ const App = () => {
   }, [currentAccount]);
 
   useEffect(() => {
+    // Will not allow onboarding session client to pass here
+    if (!sessionClient || !currentAccount) return;
+
+    navs.push("Profile");  // Add profile page if session client is available
+  }, [sessionClient]);
+
+  useEffect(() => {
     fetchApplicationByTxHash(client)
       .then((appDetails) => {
         if (!appDetails) return;
@@ -184,10 +158,18 @@ const App = () => {
       .catch(console.error);
 
     fetchAllUsers(client)
-      .then((paginated) => {
+      .then(async (paginated) => {
         if (!paginated) return;
-        setUsers(paginated.items);
-        console.log("Users:", paginated.items);
+        const users = paginated.items;
+        setUsers(users);
+        console.log("Users:", users);
+
+        const usersAccounts = users?.map(async (user) => {
+          const paginated = await listAddressAccounts(user.account.owner);
+          console.log("User accounts:", user.account.owner.slice(-6), paginated.items);
+          return paginated.items;
+        });
+        console.log("Users accounts:", await Promise.all(usersAccounts));
       })
       .catch(console.error);
   }, []);
@@ -259,13 +241,14 @@ const App = () => {
               onboardingUserSessionClient={sessionClient}
               walletClient={walletClient}
               createOnboardingSessionClient={createOnboardingSessionClient}
+              setSessionClient={setSessionClient}
             />
           )}
         </>
       )}
 
       {page === "feed" && <div>Feed</div>}
-      {page === "profile" && currentAccount && <AccountProfilePage currentAccount={currentAccount} />}
+      {page === "profile" && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} sessionClient={sessionClient!}/>}
 
     </div>
   );

@@ -2,7 +2,6 @@ import { PublicClient, testnet } from "@lens-protocol/client";
 import { WalletClient } from "viem";
 import { signMessageWith } from "@lens-protocol/client/viem";
 import { evmAddress } from "@lens-protocol/client";
-
 import { fragments } from "../fragments";
 
 const APP_ADDRESS = import.meta.env.VITE_APP_ADDRESS;

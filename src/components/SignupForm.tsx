@@ -13,12 +13,14 @@ type Props = {
   onboardingUserSessionClient?: SessionClient<Context>;
   walletClient?: WalletClient;
   createOnboardingSessionClient: Function;
+  setSessionClient: Function;
 };
 
 export default function SignupForm({
   walletClient,
   onboardingUserSessionClient,
   createOnboardingSessionClient,
+  setSessionClient
 }: Props) {
   const [name, setName] = useState("");
   const [picture, setPicture] = useState<File>();
@@ -72,17 +74,15 @@ export default function SignupForm({
         sessionClient,
       });
       console.log("CreationTxHash", txHash);
-      const account = await fetchAccountByTxHash({
-        client: sessionClient,
-        trxHash: txHash,
-      });
+      const account = await fetchAccountByTxHash(txHash);
       console.log("Account", account);
       const accountOwnerSessionClient = await switchToAccount({
         sessionClient,
         address: account?.address,
       });
+      setSessionClient(accountOwnerSessionClient);
 
-      console.log("Account owner session client", accountOwnerSessionClient);
+      console.log("Account owner session client created", accountOwnerSessionClient);
     } catch (error) {
       console.error("Error creating account:", error);
     } finally {
@@ -122,6 +122,7 @@ export default function SignupForm({
 
       <button
         type="submit"
+        disabled={isCreating}
         className="bg-green-600 w-full text-white px-4 py-2 rounded hover:bg-green-800 hover:cursor-pointer transition"
       >
         {isCreating ? "Creating account..." : "Signup"}
