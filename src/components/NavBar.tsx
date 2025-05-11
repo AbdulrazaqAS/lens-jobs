@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { ConnectKitButton } from "connectkit";
+import { navs } from "../utils/constants";
 
-export default function NavBar({ setPage, navs } : {setPage: Function; navs: ReadonlyArray<string>}) {
+export default function NavBar({ setPage } : {setPage: Function}) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (

@@ -5,12 +5,13 @@ import { uplaodMetadata, uploadFile } from "../utils/storage-client";
 import { Account, SessionClient } from "@lens-protocol/client";
 import { updateAccountMetadata } from "../utils/account";
 import { useWalletClient } from "wagmi";
+import { AccountAttributesNames, AccountModes } from "../utils/constants";
 
 interface BooleanAttribute {
   key: string;
   type: MetadataAttributeType.BOOLEAN;
   value: "true" | "false";
-}
+} 
 
 type OtherAttributes = MetadataAttributeType.DATE | MetadataAttributeType.JSON | MetadataAttributeType.NUMBER | MetadataAttributeType.STRING;
 interface OtherAttribute {
@@ -32,26 +33,22 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
   const [name, setName] = useState(currentAccount.metadata?.name ?? "");
   const [bio, setBio] = useState(currentAccount.metadata?.bio ?? "");
   const [picture, setPicture] = useState<File>();
-  const [coverPicture, setCoverPicture] = useState<File>();
+  // const [coverPicture, setCoverPicture] = useState<File>();
   const [isUpdating, setIsUpdating] = useState(false);
   // TODO: Add state for current pic and render it
+  const [accountMode, setAccountMode] = useState(AccountModes.Freelancer.toString());
   const [attributes, setAttributes] = useState<Attribute[]>([
     {
-      key: "twitter",
+      key: AccountAttributesNames.twitter,
       type: MetadataAttributeType.STRING,
       value: "https://twitter.com/",
     },
     {
-      key: "linkedin",
+      key: AccountAttributesNames.linkedin,
       type: MetadataAttributeType.STRING,
       value: "https://linkedin.com/in/",
     },
-    { key: "dob", type: MetadataAttributeType.DATE, value: "" },
-    {
-      key: "settings",
-      type: MetadataAttributeType.JSON,
-      value: '{"mode": "freelancer"}',
-    },
+    { key: AccountAttributesNames.dob, type: MetadataAttributeType.DATE, value: "" },
   ]);
 
   const handleAttributeChange = (index: number, value: string) => {
@@ -87,6 +84,12 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
         };
       }
     });
+
+    attrs.push({
+      key: AccountAttributesNames.accountMode,
+      type: MetadataAttributeType.STRING,
+      value: accountMode,
+    })
     
     return attrs;
   }
@@ -168,8 +171,12 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
         };
       }
     });
-
+    
     setAttributes(attrs);
+
+    const accountMode = currentAccount.metadata?.attributes.find(attr_ => attr_.key === "accountMode")?.value;
+    if (accountMode) setAccountMode(accountMode);  // default is freelancer
+
   }, [currentAccount]);
 
   return (
@@ -189,19 +196,9 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
 
       {/* TODO: Show selected/current pic */}
       <input
-        placeholder="Picture"
         type="file"
         accept="image/*"
         onChange={(e) => handleFileChange(e, setPicture)}
-        className="w-full border p-2 rounded"
-      />
-
-      {/* TODO: Show selected/current pic */}
-      <input
-        placeholder="Cover Picture"
-        type="file"
-        accept="image/*"
-        onChange={(e) => handleFileChange(e, setCoverPicture)}
         className="w-full border p-2 rounded"
       />
 
@@ -212,6 +209,30 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
         className="w-full border p-2 rounded"
         required
       />
+
+      <div>
+        <label>
+          <input
+            type="radio"
+            name="accountMode"
+            value={AccountModes.Freelancer.toString()}
+            checked={accountMode === AccountModes.Freelancer.toString()}
+            onChange={e => setAccountMode(e.target.value)}
+          />
+          Freelancer
+        </label>
+
+        <label>
+          <input
+            type="radio"
+            name="accountMode"
+            value={AccountModes.Hirer.toString()}
+            checked={accountMode === AccountModes.Hirer.toString()}
+            onChange={e => setAccountMode(e.target.value)}
+          />
+          Hirer
+        </label>
+      </div>
 
       <div>
         {attributes.map((attr, index) => (

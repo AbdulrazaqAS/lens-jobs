@@ -32,8 +32,6 @@ const App = () => {
   const [page, setPage] = useState("dev");
   const [currentAccount, setCurrentAccount] = useState<Account>();
 
-  const navs = ["Dev", "Jobs", "Profile"];
-
   async function logOutAuthenticatedSession() {
     // Acct Owner and manager only
     if (sessionClient) sessionClient.logout();
@@ -177,7 +175,7 @@ const App = () => {
   return (
     <div className="p-5 space-y-5 pt-23">
       {/* <ConnectKitButton /> */}
-      <NavBar navs={navs} setPage={setPage} />
+      <NavBar setPage={setPage} />
 
       {page === "dev" && (
         <>
