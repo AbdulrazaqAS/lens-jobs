@@ -40,7 +40,7 @@ export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) 
 
             {jobs && jobs.length > 0 &&
                 <div>
-                    <p>Trending Jobs</p>
+                    <p>My Jobs</p>
                     <ol className="list-decimal">
                         {jobs.map((job, idx) => (
                             <li key={idx}>
