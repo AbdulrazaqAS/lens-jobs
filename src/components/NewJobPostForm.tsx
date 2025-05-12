@@ -7,9 +7,10 @@ import { SessionClient } from "@lens-protocol/client";
 
 interface Props {
     sessionClient : SessionClient;
+    setRefetchJobsCounter: Function;
 }
 
-export default function NewJobPostForm({sessionClient}: Props) {
+export default function NewJobPostForm({sessionClient, setRefetchJobsCounter}: Props) {
     const {data: walletClient} = useWalletClient();
 
     const [title, setTitle] = useState("");
@@ -21,7 +22,7 @@ export default function NewJobPostForm({sessionClient}: Props) {
         const metadata : ArticleOptions = {
             title,
             content,
-            tags: tags.split(","),
+            tags: tags.split(",").map((tag) => tag.trim()),
         }
 
         return article(metadata);
@@ -38,9 +39,9 @@ export default function NewJobPostForm({sessionClient}: Props) {
             const metadata = generateMetadata();
             const metadataUri = await uplaodMetadata(metadata);
             const txHash = await postJob({sessionClient, walletClient, metadataUri});
+            setRefetchJobsCounter((prev: number) => prev + 1);
             console.log("Post txHash", txHash);
 
-            alert("Job posted successfully!");
             setTitle("");
             setContent("");
             setTags("");
@@ -67,12 +68,13 @@ export default function NewJobPostForm({sessionClient}: Props) {
             <textarea
                 className="w-full border p-2 rounded"
                 placeholder="Job Description"
-                rows={6}
+                rows={15}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required
             />
 
+            {/* TODO: Add popular crypto tags checkboxes and also user can add more */}
             <input
                 className="w-full border p-2 rounded"
                 placeholder="Tags (comma separated)"

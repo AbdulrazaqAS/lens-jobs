@@ -1,29 +1,31 @@
 import { useEffect, useState } from "react"
-import { Post, SessionClient } from "@lens-protocol/client"
-import { fetchJobsByHirer } from "../utils/post";
-import { useWalletClient } from "wagmi";
+import { Account, ArticleMetadata, Post, SessionClient } from "@lens-protocol/client"
+import { fetchJobByTxHash, fetchJobsByHirer } from "../utils/post";
 import NewJobPostForm from "./NewJobPostForm";
 
 interface Profs {
     sessionClient: SessionClient;
+    currentAccount: Account;
 }
 
-export default function HirerJobsPage({ sessionClient }: Profs) {
-    const {data: walletClient} = useWalletClient();
+export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) {
+    // const {data: walletClient} = useWalletClient();
     const [jobs, setJobs] = useState<ReadonlyArray<Post>>();
     const [showNewJobForm, setShowNewJobForm] = useState(false);
+    const [refetchJobsCounter, setRefetchJobsCounter] = useState(0);
 
     useEffect(() => {
-        fetchJobsByHirer(walletClient!.account.address!).then((paginated) => {
+        fetchJobsByHirer(currentAccount.address).then((paginated) => {
             if (!paginated) return;
-            const jobs = paginated.items
+            const jobs = paginated.items;
             const filteredJobs = jobs.filter((job) => job.__typename === "Post");  // only posts, removed reposts
             console.log("Account's jobs", filteredJobs);
             setJobs(filteredJobs);
             // alert(posts);
         })
 
-    }, []);
+        setShowNewJobForm(false);
+    }, [refetchJobsCounter]);
 
     return (
         <div>
@@ -34,18 +36,18 @@ export default function HirerJobsPage({ sessionClient }: Profs) {
                 {showNewJobForm? "Cancel" : "Create New Job"}
             </button>
 
-            {showNewJobForm && <NewJobPostForm sessionClient={sessionClient}/>}
+            {showNewJobForm && <NewJobPostForm sessionClient={sessionClient} setRefetchJobsCounter={setRefetchJobsCounter} />}
 
             {jobs && jobs.length > 0 &&
                 <div>
                     <p>Trending Jobs</p>
-                    <ul className="list-disc">
+                    <ol className="list-decimal">
                         {jobs.map((job, idx) => (
                             <li key={idx}>
-                                {job.id.slice(0, 10)}...
+                                {job.metadata.__typename === "ArticleMetadata" && job.metadata.title}
                             </li>
                         ))}
-                    </ul>
+                    </ol>
                 </div>
             }
         </div>

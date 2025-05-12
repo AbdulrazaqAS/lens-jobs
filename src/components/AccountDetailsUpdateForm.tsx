@@ -240,18 +240,19 @@ export default function AccountDetailsUpdateForm({ currentAccount, setCurrentAcc
             value={AccountModes.Freelancer.toString()}
             checked={accountMode === AccountModes.Freelancer.toString()}
             onChange={e => setAccountMode(e.target.value)}
-            className="ml-2"
+            className="mr-2"
           />
           Freelancer
         </label>
 
-        <label>
+        <label className="ml-3">
           <input
             type="radio"
             name="accountMode"
             value={AccountModes.Hirer.toString()}
             checked={accountMode === AccountModes.Hirer.toString()}
             onChange={e => setAccountMode(e.target.value)}
+            className="mr-2"
           />
           Hirer
         </label>

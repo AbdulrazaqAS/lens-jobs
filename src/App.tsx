@@ -147,6 +147,7 @@ const App = () => {
       console.log("Session client created", sessionClient);
     }).catch((error) => {
       console.error("Error creating session client", error);
+      // TODO: Handle possible issues. Should cuurentAccount be cleared on error?
     });
 
     // TODO: Logout session client when account changes
@@ -255,6 +256,7 @@ const App = () => {
 
       {page === Navs.jobs && <JobsPage currentAccount={currentAccount} sessionClient={sessionClient} />}
       {page === Navs.profile && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} setCurrentAccount={setCurrentAccount} sessionClient={sessionClient!}/>}
+      {/* TODO: If no authenticated session, show create account button in profile page */}
 
     </div>
   );
