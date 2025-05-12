@@ -146,8 +146,17 @@ const App = () => {
   useEffect(() => {
     // Will not allow onboarding session client to pass here
     if (!sessionClient || !currentAccount) return;
-
+    // show
   }, [sessionClient]);
+
+  useEffect(() => {
+    if (account.isConnected){
+      //
+    } else if (account.isDisconnected){
+      setCurrentAccount(undefined);
+      console.log("Current account set to undefined");
+    }
+  }, [account.status]);
 
   useEffect(() => {
     fetchApplicationByTxHash(client)
