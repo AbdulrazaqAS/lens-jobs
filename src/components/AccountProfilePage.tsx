@@ -4,10 +4,11 @@ import AccountDetailsUpdateForm from './AccountDetailsUpdateForm';
 interface Props {
     currentAccount: Account;
     sessionClient: SessionClient;
+    setCurrentAccount: Function;
 }
 
-export default function AccountProfilePage({currentAccount, sessionClient}: Props ) {
+export default function AccountProfilePage({currentAccount, setCurrentAccount, sessionClient}: Props ) {
     return (
-        <AccountDetailsUpdateForm currentAccount={currentAccount} sessionClient={sessionClient}/>
+        <AccountDetailsUpdateForm currentAccount={currentAccount} setCurrentAccount={setCurrentAccount} sessionClient={sessionClient}/>
     );
 }

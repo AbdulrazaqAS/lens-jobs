@@ -254,7 +254,7 @@ const App = () => {
       )}
 
       {page === Navs.jobs && <JobsPage currentAccount={currentAccount} sessionClient={sessionClient} />}
-      {page === Navs.profile && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} sessionClient={sessionClient!}/>}
+      {page === Navs.profile && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} setCurrentAccount={setCurrentAccount} sessionClient={sessionClient!}/>}
 
     </div>
   );

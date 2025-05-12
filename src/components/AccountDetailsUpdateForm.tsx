@@ -3,7 +3,7 @@ import { account, MetadataAttribute, MetadataAttributeType } from "@lens-protoco
 import { AccountOptions } from "@lens-protocol/metadata";
 import { uplaodMetadata, uploadFile } from "../utils/storage-client";
 import { Account, SessionClient } from "@lens-protocol/client";
-import { updateAccountMetadata } from "../utils/account";
+import { fetchAccountByAddress, updateAccountMetadata } from "../utils/account";
 import { useWalletClient } from "wagmi";
 import { AccountAttributesNames, AccountModes } from "../utils/constants";
 
@@ -24,10 +24,11 @@ type Attribute = BooleanAttribute | OtherAttribute;
 
 interface Props {
   currentAccount: Account;
-  sessionClient: SessionClient
+  sessionClient: SessionClient;
+  setCurrentAccount: Function;
 }
 
-export default function AccountDetailsUpdateForm({ currentAccount, sessionClient }: Props) {
+export default function AccountDetailsUpdateForm({ currentAccount, setCurrentAccount, sessionClient }: Props) {
   const { data: walletClient } = useWalletClient();
 
   const [name, setName] = useState(currentAccount.metadata?.name ?? "");
@@ -127,7 +128,27 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
       const metadataUri = await uplaodMetadata(metadata);
       console.log("Metadata URI:", metadataUri);
       const txHash = await updateAccountMetadata({ metadataUri, sessionClient, walletClient })
-      console.log("Account info updated. TxHash:", txHash);
+      console.log("Account info update txHash:", txHash);
+
+      async function updateCurrentAccount(){
+        const result = await sessionClient.waitForTransaction(txHash);
+        if (result.isErr()){
+          console.error("Error mining account update:", result.error);
+          return;
+        }
+
+        const account = await fetchAccountByAddress(currentAccount.address);
+        if (!account) {
+          console.error("Error fetching updated account data");
+          return;
+        }
+        
+        setCurrentAccount(account);
+        console.log("Updated account info:", account);
+      }
+      
+      // No need to await for this, let the user see the update btn turn back to normal immediately
+      updateCurrentAccount();
     } catch (error) {
       alert(error)
       console.error("Error updating account info:", error);
@@ -211,7 +232,7 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
         required
       />
 
-      <div>
+      <div className="space-x-3">
         <label>
           <input
             type="radio"
@@ -219,6 +240,7 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
             value={AccountModes.Freelancer.toString()}
             checked={accountMode === AccountModes.Freelancer.toString()}
             onChange={e => setAccountMode(e.target.value)}
+            className="ml-2"
           />
           Freelancer
         </label>
@@ -245,7 +267,6 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
               value={attr.value}
               onChange={(e) => handleAttributeChange(index, e.target.value)}
               className="border p-2 rounded w-1/2"
-              // Make dob and such required
               required={attr.type === MetadataAttributeType.DATE}
             />
           </div>
@@ -256,7 +277,7 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
       <button
         type="submit"
         disabled={isUpdating}
-        className="bg-green-600 text-white px-4 py-2 rounded"
+        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
       >
         {isUpdating ? "Updating..." : "Update"}
       </button>
