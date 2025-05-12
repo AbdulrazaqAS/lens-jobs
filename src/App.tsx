@@ -54,8 +54,31 @@ const App = () => {
       throw result.error;
     }
 
-    console.log("Last logged in account", result);
     return result.value;
+  }
+
+  async function pickCurrentAccount(){
+    try {
+      const lastAcct = await getLastLoggedInAccount();
+      if (lastAcct) {
+        setCurrentAccount(lastAcct);
+        console.log("Last logged in account set as current account:", lastAcct);
+        return;
+      }
+
+      // If no last account, get the first one from all connected address accounts
+      const accts = await listAddressAccounts(account.address!);
+      if (!accts || accts.items.length === 0) {
+        console.log("Connected in wallet has no any account");
+        return;  // have not created any account
+      }
+
+      setCurrentAccount(accts.items[0].account); // pick the first one
+      // console.log("Connected wallet has", accts.items.length, "accounts");
+      console.log("Current account picked:", accts.items[0].account);
+    } catch (error) {
+      console.error("Error picking current account", error);
+    }
   }
 
   async function createOnboardingSessionClient() {
@@ -77,10 +100,13 @@ const App = () => {
   }
 
   async function createAccountOwnerSessionClient() {
+    console.log("Creating client1");
     if (!walletClient) return;
+    console.log("Creating client2");
 
     try {
       const user = await setupAccountOwnerSessionClient({ walletClient, accountAddr: currentAccount!.address });
+      console.log("Client", user);
       if (user) {
         setSessionClient(user);
         return user;
@@ -91,42 +117,60 @@ const App = () => {
   }
 
   // Get whether wallet has an account
+  // useEffect(() => {
+  //   if (!account.isConnected) return;
+    
+  //   async function pickCurrentAccount(){
+  //     try {
+  //       const lastAcct = await getLastLoggedInAccount();
+  //       if (lastAcct) {
+  //         setCurrentAccount(lastAcct);
+  //         console.log("Last logged in account detected", lastAcct);
+  //         return;
+  //       }
+  
+  //       // If no last account, get the first one from all connected address accounts
+  //       const accts = await listAddressAccounts(account.address!);
+  //       if (!accts || accts.items.length === 0) return;  // have not created any account
+  //       setCurrentAccount(accts.items[0].account); // pick the first one
+
+  //       // console.log("Connected wallet has", accts.items.length, "accounts");
+  //       console.log("Active account set", accts.items[0].account);
+  //     } catch (error) {
+  //       console.error("Error picking current account", error);
+  //     }
+  //   }
+
+  //   pickCurrentAccount();
+
+  // }, [walletClient, account.isConnected]);
+  
   useEffect(() => {
     console.log({
       IsConnected: account.isConnected,
-      HasWalletClient: Boolean(walletClient),
+      AcctStatus: account.status,
       HasSessionClient: Boolean(sessionClient),
     });
-    
-    if (!account.isConnected) return;
-    
-    async function pickCurrentAccount(){
-      try {
-        const lastAcct = await getLastLoggedInAccount();
-        if (lastAcct) {
-          setCurrentAccount(lastAcct);
-          console.log("Last logged in account detected");
-          return;
-        }
-  
-        // If no last account, get the first one from all connected address accounts
-        const accts = await listAddressAccounts(account.address!);
-        if (!accts || accts.items.length === 0) return;  // have not created any account
-        setCurrentAccount(accts.items[0].account); // pick the first one
 
-        console.log("Connected wallet has", accts.items.length, "accounts");
-        console.log("Active account set", accts.items[0].account);
-      } catch (error) {
-        console.error("Error picking current account", error);
-      }
+    if (account.isConnected){
+      pickCurrentAccount();
+    } else if (account.isDisconnected){
+      setCurrentAccount(undefined);
+      console.log("Current account set to undefined");
+      // No need to logout authenticated session from here
     }
-
-    pickCurrentAccount();
-
-  }, [walletClient, account.isConnected]);
+  }, [account.status]);
 
   useEffect(() => {
-    if (!currentAccount) return;
+    console.log({
+      IsConnected: account.isConnected,
+      AcctStatus: account.status,
+      HasWalletClient: Boolean(walletClient),
+      HasSessionClient: Boolean(sessionClient),
+      HasCurrentAccount: Boolean(currentAccount),
+    });
+
+    if (!currentAccount || !walletClient) return;
 
     createAccountOwnerSessionClient().then((sessionClient) => {
       if (!sessionClient) return;
@@ -136,27 +180,13 @@ const App = () => {
       console.error("Error creating session client", error);
     });
 
-    // Logout session client when account changes
+    // TODO: Logout session client when account changes
     return () => {
-      logOutAuthenticatedSession();
-      setSessionClient(undefined);
+      //logOutAuthenticatedSession();
+      //setSessionClient(undefined);
     };
-  }, [currentAccount]);
+  }, [currentAccount, walletClient]);
 
-  useEffect(() => {
-    // Will not allow onboarding session client to pass here
-    if (!sessionClient || !currentAccount) return;
-    // show
-  }, [sessionClient]);
-
-  useEffect(() => {
-    if (account.isConnected){
-      //
-    } else if (account.isDisconnected){
-      setCurrentAccount(undefined);
-      console.log("Current account set to undefined");
-    }
-  }, [account.status]);
 
   useEffect(() => {
     fetchApplicationByTxHash(client)
