@@ -78,6 +78,7 @@ export default function NewJobPostForm({sessionClient}: Props) {
                 placeholder="Tags (comma separated)"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
+                required
             />
 
             <button

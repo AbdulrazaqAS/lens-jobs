@@ -7,7 +7,7 @@ interface Profs {
     sessionClient?: SessionClient;
 }
 
-export function FeedsPage({ sessionClient }: Profs) {
+export default function FreelancerJobsPage({ sessionClient }: Profs) {
     const [trendingJobs, setTrendingJobs] = useState<ReadonlyArray<Post>>();
     const [forYouJobs, setForYouJobs] = useState<ReadonlyArray<Post>>();
     const [searchedJobs, setSearchedJobs] = useState<ReadonlyArray<Post>>();

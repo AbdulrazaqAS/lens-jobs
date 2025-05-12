@@ -11,7 +11,7 @@ interface BooleanAttribute {
   key: string;
   type: MetadataAttributeType.BOOLEAN;
   value: "true" | "false";
-} 
+}
 
 type OtherAttributes = MetadataAttributeType.DATE | MetadataAttributeType.JSON | MetadataAttributeType.NUMBER | MetadataAttributeType.STRING;
 interface OtherAttribute {
@@ -90,7 +90,7 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
       type: MetadataAttributeType.STRING,
       value: accountMode,
     })
-    
+
     return attrs;
   }
 
@@ -171,10 +171,11 @@ export default function AccountDetailsUpdateForm({ currentAccount, sessionClient
         };
       }
     });
-    
+
     setAttributes(attrs);
 
-    const accountMode = currentAccount.metadata?.attributes.find(attr_ => attr_.key === "accountMode")?.value;
+    const accountMode = currentAccount.metadata?.attributes
+      .find(attr_ => attr_.key === AccountAttributesNames.accountMode)?.value;
     if (accountMode) setAccountMode(accountMode);  // default is freelancer
 
   }, [currentAccount]);
