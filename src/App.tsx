@@ -156,7 +156,6 @@ const App = () => {
     };
   }, [currentAccount, walletClient]);
 
-
   useEffect(() => {
     fetchApplicationByTxHash(client)
       .then((appDetails) => {

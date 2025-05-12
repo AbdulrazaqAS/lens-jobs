@@ -105,6 +105,34 @@ export async function fetchAccountByTxHash(trxHash:string){
   return result.value;
 }
 
+export async function fetchAccountByAddress(addr:string){
+  const result = await fetchAccount(client, {
+    address: evmAddress(addr),
+  });
+
+  if (result.isErr()) {
+    console.error("Fetching failed:", result.error);
+    throw result.error;
+  }
+
+  return result.value;
+}
+
+export async function fetchAccountByUsername(username:string){
+  const result = await fetchAccount(client, {
+    username: {
+      localName: username,
+    },
+  });
+
+  if (result.isErr()) {
+    console.error("Fetching failed:", result.error);
+    throw result.error;
+  }
+
+  return result.value;
+}
+
 export async function switchToAccount({
   sessionClient,
   address,

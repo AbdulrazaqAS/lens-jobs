@@ -6,7 +6,6 @@ import {
   fetchAppGroups,
   fetchAppSigners,
 } from "@lens-protocol/client/actions";
-import { AppMetadataDetails } from "@lens-protocol/metadata";
 
 const APP_TX_HASH = import.meta.env.VITE_APP_TX_HASH;
 const APP_ADDRESS = import.meta.env.VITE_APP_ADDRESS;
