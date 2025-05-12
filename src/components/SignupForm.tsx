@@ -8,20 +8,23 @@ import {
 } from "../utils/account";
 import { Context, SessionClient } from "@lens-protocol/client";
 import { WalletClient } from "viem";
+import { useWalletClient } from "wagmi";
 
 type Props = {
   onboardingUserSessionClient?: SessionClient<Context>;
   walletClient?: WalletClient;
   createOnboardingSessionClient: Function;
   setSessionClient: Function;
+  setCurrentAccount: Function;
 };
 
 export default function SignupForm({
-  walletClient,
-  onboardingUserSessionClient,
   createOnboardingSessionClient,
-  setSessionClient
+  setSessionClient,
+  setCurrentAccount,
 }: Props) {
+  const {data: walletClient} = useWalletClient();
+
   const [name, setName] = useState("");
   const [picture, setPicture] = useState<File>();
   const [username, setUsername] = useState("");
@@ -47,18 +50,12 @@ export default function SignupForm({
 
     // TODO: add fields checks
 
-    let sessionClient = onboardingUserSessionClient;
-
     try {
       setIsCreating(true);
 
+      const sessionClient = await createOnboardingSessionClient();
       if (!sessionClient) {
-        sessionClient = await createOnboardingSessionClient();
-      }
-
-      if (!sessionClient) {
-        console.error("Session client not created");
-        return;
+        throw new Error("Error creating onboarding session client");
       }
 
       console.log("Session client", sessionClient);
@@ -75,14 +72,14 @@ export default function SignupForm({
       });
       console.log("CreationTxHash", txHash);
       const account = await fetchAccountByTxHash(txHash);
-      console.log("Account", account);
+      console.log("Account created", account);
       const accountOwnerSessionClient = await switchToAccount({
         sessionClient,
         address: account?.address,
       });
       setSessionClient(accountOwnerSessionClient);
-      // TODO: make profile page available on changing client
-      alert("Session client updated");
+      setCurrentAccount(account);
+      
       console.log("Account owner session client created", accountOwnerSessionClient);
     } catch (error) {
       alert(error);

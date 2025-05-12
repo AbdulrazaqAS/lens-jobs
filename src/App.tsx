@@ -90,10 +90,8 @@ const App = () => {
 
     try {
       const user = await setupOnboardingSessionClient({ walletClient });
-      if (user) {
-        setSessionClient(user);
-        return user;
-      }
+      setSessionClient(user);
+      return user;
     } catch (error) {
       throw error;
     }
@@ -107,10 +105,8 @@ const App = () => {
     try {
       const user = await setupAccountOwnerSessionClient({ walletClient, accountAddr: currentAccount!.address });
       console.log("Client", user);
-      if (user) {
-        setSessionClient(user);
-        return user;
-      }
+      setSessionClient(user);
+      return user;
     } catch (error) {
       throw error;
     }
@@ -277,10 +273,9 @@ const App = () => {
 
           {showSignupForm && (
             <SignupForm
-              onboardingUserSessionClient={sessionClient}
-              walletClient={walletClient}
               createOnboardingSessionClient={createOnboardingSessionClient}
               setSessionClient={setSessionClient}
+              setCurrentAccount={setCurrentAccount}
             />
           )}
         </>
