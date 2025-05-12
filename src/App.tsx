@@ -98,13 +98,10 @@ const App = () => {
   }
 
   async function createAccountOwnerSessionClient() {
-    console.log("Creating client1");
     if (!walletClient) return;
-    console.log("Creating client2");
 
     try {
       const user = await setupAccountOwnerSessionClient({ walletClient, accountAddr: currentAccount!.address });
-      console.log("Client", user);
       setSessionClient(user);
       return user;
     } catch (error) {
@@ -112,35 +109,7 @@ const App = () => {
     }
   }
 
-  // Get whether wallet has an account
-  // useEffect(() => {
-  //   if (!account.isConnected) return;
-    
-  //   async function pickCurrentAccount(){
-  //     try {
-  //       const lastAcct = await getLastLoggedInAccount();
-  //       if (lastAcct) {
-  //         setCurrentAccount(lastAcct);
-  //         console.log("Last logged in account detected", lastAcct);
-  //         return;
-  //       }
-  
-  //       // If no last account, get the first one from all connected address accounts
-  //       const accts = await listAddressAccounts(account.address!);
-  //       if (!accts || accts.items.length === 0) return;  // have not created any account
-  //       setCurrentAccount(accts.items[0].account); // pick the first one
-
-  //       // console.log("Connected wallet has", accts.items.length, "accounts");
-  //       console.log("Active account set", accts.items[0].account);
-  //     } catch (error) {
-  //       console.error("Error picking current account", error);
-  //     }
-  //   }
-
-  //   pickCurrentAccount();
-
-  // }, [walletClient, account.isConnected]);
-  
+  // Check whether wallet has an account
   useEffect(() => {
     console.log({
       IsConnected: account.isConnected,
@@ -166,7 +135,11 @@ const App = () => {
       HasCurrentAccount: Boolean(currentAccount),
     });
 
-    if (!currentAccount || !walletClient) return;
+    // Included "sessionClient" to return if session client is already set.
+    // Particularly useful after creating a new account which will update
+    // currentAccount which will cause this useEffect to rerun. Since the
+    // the sessionClient has been updated from there, no need for it here.
+    if (!currentAccount || !walletClient || sessionClient) return;
 
     createAccountOwnerSessionClient().then((sessionClient) => {
       if (!sessionClient) return;

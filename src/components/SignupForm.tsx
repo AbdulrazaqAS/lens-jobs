@@ -62,6 +62,7 @@ export default function SignupForm({
       const pictureUri = await uploadFile(picture!);
       console.log("Picture Uri", pictureUri);
       const metadata = generateMetadata(pictureUri);
+      // TODO: Check username availabilty before uploading metadata
       const metadataUri = await uplaodMetadata(metadata);
       console.log("MetadataUri", metadataUri);
       const txHash = await createNewAccountWithUsername({
