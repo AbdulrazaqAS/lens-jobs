@@ -1,10 +1,11 @@
 import { article, ArticleOptions, MetadataAttributeType } from "@lens-protocol/metadata";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { uplaodMetadata } from "../utils/storage-client";
 import { useWalletClient } from "wagmi";
 import { postJob } from "../utils/post";
 import { SessionClient } from "@lens-protocol/client";
 import { JobAttributeName, Tags } from "../utils/constants";
+import sampleJobs from "../assets/jobs-sample.json";
 
 interface Props {
   sessionClient: SessionClient;
@@ -41,6 +42,7 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
     const fixed = newTag.trim().toLowerCase();
     if (fixed && !tags.includes(fixed)) {
       setTags([...tags, fixed]);
+      setSelectedTags([...selectedTags, fixed]);
       setNewTag('');
     }
   };
@@ -59,7 +61,13 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       value: deadline
     }
 
-    return [feeAttr, deadlineAttr];
+    const feePerHourAttr: JobAttribute = {
+      key: JobAttributeName.feePerHour,
+      type: MetadataAttributeType.STRING,  // Making it boolean will trigger many ts rewirings
+      value: feePerHour.toString(),
+    }
+
+    return [feeAttr, deadlineAttr, feePerHourAttr];
   }
 
   function generateMetadata() {
@@ -68,7 +76,7 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
     const metadata: ArticleOptions = {
       title,
       content,
-      tags: selectedTags,
+      tags: selectedTags.map(tag => tag.toLowerCase()),
       attributes: attrs,
     }
 
@@ -108,6 +116,16 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       setIsLoading(false)
     }
   };
+
+  useEffect(() => {
+    const sampleJob = sampleJobs[Math.floor(Math.random() * sampleJobs.length)];
+    setTitle(sampleJob.title);
+    setContent(sampleJob.description);
+    setSelectedTags(sampleJob.tags);
+    setDeadline(sampleJob.deadline + "T15:30");
+    setFee(Number(sampleJob.reward));
+    setFeePerHour(Math.random() < 0.5 ? true : false);
+  }, []);
 
   return (
     <form

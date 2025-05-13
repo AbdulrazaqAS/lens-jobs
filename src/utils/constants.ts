@@ -37,6 +37,7 @@ export const Tags: ReadonlyArray<string> = [
     "Polygon",
     "Arbitrum",
     "ZK",
+    "Oracle",
     "IPFS",
     "Chainlink",
     "Tokenomics",

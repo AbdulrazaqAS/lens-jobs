@@ -38,7 +38,12 @@ async function fetchFeedByAddress(addr: string){
 }
 
 function checkUserCanPostJob(feed: Feed) {
-    switch (feed.operations!.canPost.__typename) {  // TODO: how does this work based on user. Does it fill the the feed object on fetch or on signin?
+    if (!feed.operations) {
+        console.error("Feed operations is null");
+        return;
+    }
+    
+    switch (feed.operations.canPost.__typename) {  // TODO: how does this work based on user. Does it fill the the feed object on fetch or on signin?
     // case "FeedOperationValidationPassed":
     //     canPost = true;
     //     break;
