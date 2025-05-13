@@ -5,7 +5,7 @@ import { uplaodMetadata, uploadFile } from "../utils/storage-client";
 import { Account, SessionClient } from "@lens-protocol/client";
 import { fetchAccountByAddress, updateAccountMetadata } from "../utils/account";
 import { useWalletClient } from "wagmi";
-import { AccountAttributesNames, AccountModes } from "../utils/constants";
+import { AccountAttributeName, AccountModes } from "../utils/constants";
 
 interface BooleanAttribute {
   key: string;
@@ -40,16 +40,16 @@ export default function AccountDetailsUpdateForm({ currentAccount, setCurrentAcc
   const [accountMode, setAccountMode] = useState(AccountModes.Freelancer.toString());
   const [attributes, setAttributes] = useState<Attribute[]>([
     {
-      key: AccountAttributesNames.twitter,
+      key: AccountAttributeName.twitter,
       type: MetadataAttributeType.STRING,
       value: "https://twitter.com/",
     },
     {
-      key: AccountAttributesNames.linkedin,
+      key: AccountAttributeName.linkedin,
       type: MetadataAttributeType.STRING,
       value: "https://linkedin.com/in/",
     },
-    { key: AccountAttributesNames.dob, type: MetadataAttributeType.DATE, value: "" },
+    { key: AccountAttributeName.dob, type: MetadataAttributeType.DATE, value: "" },
   ]);
 
   const handleAttributeChange = (index: number, value: string) => {
@@ -87,7 +87,7 @@ export default function AccountDetailsUpdateForm({ currentAccount, setCurrentAcc
     });
 
     attrs.push({
-      key: AccountAttributesNames.accountMode,
+      key: AccountAttributeName.accountMode,
       type: MetadataAttributeType.STRING,
       value: accountMode,
     })
@@ -196,7 +196,7 @@ export default function AccountDetailsUpdateForm({ currentAccount, setCurrentAcc
     setAttributes(attrs);
 
     const accountMode = currentAccount.metadata?.attributes
-      .find(attr_ => attr_.key === AccountAttributesNames.accountMode)?.value;
+      .find(attr_ => attr_.key === AccountAttributeName.accountMode)?.value;
     if (accountMode) setAccountMode(accountMode);  // default is freelancer
 
   }, [currentAccount]);

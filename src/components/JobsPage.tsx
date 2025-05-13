@@ -1,5 +1,5 @@
 import { Account, SessionClient } from "@lens-protocol/client"
-import { AccountAttributesNames, AccountModes } from "../utils/constants";
+import { AccountAttributeName, AccountModes } from "../utils/constants";
 import FreelancerJobsPage from "./FreelancerJobsPage";
 import HirerJobsPage from "./HirerJobsPage";
 
@@ -10,7 +10,7 @@ interface Profs {
 
 export default function JobsPage({ sessionClient, currentAccount }: Profs) {
     const accountModeString = currentAccount?.metadata?.attributes
-        .find(attr_ => attr_.key === AccountAttributesNames.accountMode)?.value
+        .find(attr_ => attr_.key === AccountAttributeName.accountMode)?.value
 
     let accountMode: AccountModes = AccountModes.Freelancer;
     if (accountModeString) accountMode = parseInt(accountModeString) as AccountModes;

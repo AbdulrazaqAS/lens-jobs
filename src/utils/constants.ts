@@ -1,11 +1,7 @@
-export const Navs: Readonly<{
-    dev: string;
-    jobs: string;
-    profile: string;
-}> = {
-    dev: "dev",
-    jobs: "jobs",
-    profile: "profile"
+export enum Navs {
+    dev = "dev",
+    jobs = "jobs",
+    profile = "profile"
 }
 
 export enum AccountModes {
@@ -13,16 +9,17 @@ export enum AccountModes {
     Hirer
 }
 
-export const AccountAttributesNames: Readonly<{
-    dob: string;
-    twitter: string;
-    linkedin: string;
-    accountMode: string;
-}> = {
-    dob: "dob",
-    twitter: "twitter",
-    linkedin: "linkedin",
-    accountMode: "accountMode",
+export enum AccountAttributeName {
+    dob = "dob",
+    twitter = "twitter",
+    linkedin = "linkedin",
+    accountMode = "accountMode",
+}
+
+export enum JobAttributeName {
+    fee = "fee",
+    feePerHour = "feePerHour",
+    deadline = "deadline",
 }
 
 export const Tags: ReadonlyArray<string> = [
