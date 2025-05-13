@@ -24,3 +24,27 @@ export const AccountAttributesNames: Readonly<{
     linkedin: "linkedin",
     accountMode: "accountMode",
 }
+
+export const Tags: ReadonlyArray<string> = [
+    "Smart Contracts",
+    "Solidity",
+    "DeFi",
+    "NFTs",
+    "DAOs",
+    "Lens",
+    "Lens Protocol",
+    "Web3 Development",
+    "Smart Contract Auditing",
+    "Dapp",
+    "Ethereum",
+    "Polygon",
+    "Arbitrum",
+    "ZK",
+    "IPFS",
+    "Chainlink",
+    "Tokenomics",
+    "Rust",
+    "Crypto Marketing",
+    "Community Management",
+    "Airdrop Campaigns"
+];
