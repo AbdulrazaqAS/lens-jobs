@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+/* Adding custom style/command */
+@theme {
+    --color-background: #0E111B;
+    --color-primary: #5C73F2;
+    --color-secondary: #14F195;
+    --color-surface: #1A1F2B;
+    --color-accent: #F2C94C;
+    --color-danger: #EB5757;
+    
+    --font-sans: 'Inter', 'sans-serif';
+}
+
+/* Adding complex classes */
+@layer components {
+  .card {
+    background-color: var(--color-white);
+    border-radius: var(--rounded-lg);
+    padding: var(--spacing-6);
+    box-shadow: var(--shadow-xl);
+    /* Can use @apply for tailwind commands */
+
+    /* For variants: dark, hover, disabled. Can be nested */
+    @variant dark {
+      background-color: var(--color-black);
+    }
+  }
+}
+
+/* Customizing html tags */
+@layer base {
+  body {
+    @apply bg-background text-white font-sans;
+  }
+}

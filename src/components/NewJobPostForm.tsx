@@ -23,7 +23,8 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [fee, setFee] = useState(0);
+  const [fee, setFee] = useState(5);
+  const [feePerHour, setFeePerHour] = useState(true);
   const [deadline, setDeadline] = useState("");
   const [tags, setTags] = useState<string[]>([...Tags]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -79,6 +80,13 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
 
     if (!walletClient) return;
 
+    // TODO: Provide feedback. Use reasonable minimums.
+    if (selectedTags.length === 0) return;
+    if (title.trim().length < 20) return;
+    if (content.trim().length < 100) return;
+    if (fee < 5) return;
+    if (!deadline) return;
+
     setIsLoading(true);
 
     try {
@@ -127,27 +135,40 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
           onChange={(e) => setContent(e.target.value)}
           className="w-full p-2 rounded bg-background border border-gray-600 text-white"
           placeholder="Brief description of the job..."
-          rows={4}
+          rows={10}
           required
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1 font-medium">Fee (USDC)</label>
-          <input
-            type="number"
-            min="0"
-            value={fee}
-            onChange={(e) => setFee(Number(e.target.value))}
-            className="w-full p-2 rounded bg-background border border-gray-600 text-white"
-            required
-          />
+          <div className="flex flex-col">
+            <div>
+              <label className="block mb-1 font-medium">Fee (USDC)</label>
+              <input
+                type="number"
+                min="5"
+                value={fee}
+                onChange={(e) => setFee(Number(e.target.value))}
+                className="w-full p-2 rounded bg-background border border-gray-600 text-white"
+                required
+              />
+            </div>
+            <label className="mt-2 flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={feePerHour}
+                  onChange={() => setFeePerHour(!feePerHour)}
+                  className="accent-primary"
+                  />
+                Per Hour
+            </label>
+          </div>
         </div>
         <div>
           <label className="block mb-1 font-medium">Deadline</label>
           <input
-            type="date"
+            type="datetime-local"
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
             className="w-full p-2 rounded bg-background border border-gray-600 text-white"
