@@ -1,20 +1,54 @@
-import { SessionClient, uri, txHash, evmAddress, AnyClient } from "@lens-protocol/client";
-import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore } from "@lens-protocol/client/actions";
+import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed } from "@lens-protocol/client";
+import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fetchFeed } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
 import { WalletClient } from "viem";
 import { client } from "./client";
 
+const FEED_ADDRESS = import.meta.env.VITE_APP_FEED_ADDRESS;
+
 export async function postJob({ sessionClient, walletClient, metadataUri }: { sessionClient: SessionClient, walletClient: WalletClient, metadataUri: string }) {
-    const result = await post(sessionClient,
-        { contentUri: uri(metadataUri) }
-    )
-        .andThen(handleOperationWith(walletClient));
+    const feed = await fetchFeedByAddress(FEED_ADDRESS);
+    if (!feed) throw new Error("Error fetching feed");
+    console.log("Feed", feed);
+    checkUserCanPostJob(feed);  // If can't post, exec will stop by throwing error
+ 
+    const result = await post(sessionClient, {
+            contentUri: uri(metadataUri), 
+            feed: evmAddress(FEED_ADDRESS),
+        }
+    ).andThen(handleOperationWith(walletClient));
 
     if (result.isErr()) {
         throw result.error;
     }
 
     return result.value;
+}
+
+async function fetchFeedByAddress(addr: string){
+    const result = await fetchFeed(client, {
+        feed: evmAddress(addr),
+    });
+
+    if (result.isErr()){
+        throw result.error;
+    }
+
+    return result.value;
+}
+
+function checkUserCanPostJob(feed: Feed) {
+    switch (feed.operations!.canPost.__typename) {  // TODO: how does this work based on user. Does it fill the the feed object on fetch or on signin?
+    // case "FeedOperationValidationPassed":
+    //     canPost = true;
+    //     break;
+    case "FeedOperationValidationFailed":
+        console.error("User can post on this feed:", feed.operations!.canPost.reason);
+        throw new Error(`User can post on this feed: ${feed.operations!.canPost.reason}`);
+    case "FeedOperationValidationUnknown":
+        console.error("User can post on this feed");
+        throw new Error("User can post on this feed");
+    }
 }
 
 export async function fetchJobByTxHash(trxHash: string) {
@@ -32,6 +66,9 @@ export async function fetchJobByTxHash(trxHash: string) {
 export async function fetchJobsByTags(tags: string[]) {
     const result = await fetchPosts(client, {
         filter: {
+            feeds: [
+                { feed: evmAddress(FEED_ADDRESS)}
+            ],
             metadata: {
                 tags: { all: tags },
             },
@@ -48,6 +85,9 @@ export async function fetchJobsByTags(tags: string[]) {
 export async function fetchJobsByQuery(query: string) {
     const result = await fetchPosts(client, {
         filter: {
+            feeds: [
+                { feed: evmAddress(FEED_ADDRESS)}
+            ],
             searchQuery: query,
         },
     });
@@ -62,6 +102,9 @@ export async function fetchJobsByQuery(query: string) {
 export async function fetchJobsByHirer(addr: string) {
     const result = await fetchPosts(client, {
         filter: {
+            feeds: [
+                { feed: evmAddress(FEED_ADDRESS)}
+            ],
             authors: [evmAddress(addr)],
         },
     });
