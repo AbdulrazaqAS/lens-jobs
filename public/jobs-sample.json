@@ -1,0 +1,37 @@
+[
+  {
+    "title": "Smart Contract Developer (DeFi Protocol)",
+    "description": "We're building the next-generation decentralized exchange on Arbitrum.\n\nYour role will involve writing secure, gas-optimized smart contracts in Solidity, integrating oracles (Chainlink), and building protocol logic for liquidity pools and staking rewards.\n\nPrior experience with EVM, Foundry/Hardhat, and basic understanding of ZK rollups is a plus.",
+    "reward": "4000",
+    "deadline": "2025-05-20",
+    "tags": ["Solidity", "DeFi", "Smart Contracts", "Ethereum", "Arbitrum"]
+  },
+  {
+    "title": "Lens Protocol Content Strategist",
+    "description": "We are looking for a creative content strategist with deep knowledge of Lens Protocol and Web3 social.\n\nResponsibilities include creating engaging blog posts, tutorials, and short-form video scripts that educate and onboard creators to Lens. You'll work closely with devs and designers to shape content for launches and community updates.\n\nBonus if you've used Lens firsthand and are familiar with its social primitives.",
+    "reward": "1500",
+    "deadline": "2025-05-18",
+    "tags": ["Lens Protocol", "Crypto Marketing", "Content", "Community Management", "Web3 Development"]
+  },
+  {
+    "title": "Rust Developer for Solana NFT Tool",
+    "description": "Join our dev team to build a CLI tool and backend services for managing NFT metadata and minting on Solana.\n\nYou must be fluent in Rust and have prior experience building on-chain programs (smart contracts) using Anchor framework. The tool will automate batch minting and metadata uploads to Arweave/IPFS.\n\nFamiliarity with Metaplex is a strong plus.",
+    "reward": "3000",
+    "deadline": "2025-05-25",
+    "tags": ["Rust", "Solana", "NFTs", "IPFS", "Smart Contracts"]
+  },
+  {
+    "title": "Community Manager for DAO Launch",
+    "description": "Help us launch and grow our new DAO focused on DeFi education.\n\nYou'll manage Discord, Twitter, and governance forums, organize weekly AMAs, and create engaging campaigns that bring in active members. Experience with Snapshot, Discourse, and DAO tooling is required.\n\nYou should be able to track community sentiment and coordinate feedback loops between core team and community.",
+    "reward": "1200",
+    "deadline": "2025-05-22",
+    "tags": ["DAOs", "Community Management", "DeFi", "Tokenomics", "Crypto Marketing"]
+  },
+  {
+    "title": "Chainlink Integration Engineer",
+    "description": "We're integrating real-world data feeds into our prediction market protocol and need a Chainlink expert.\n\nTasks will include deploying Oracle contracts, testing on testnets (Sepolia/Polygon Mumbai), and working with off-chain data sources via Chainlink Functions. Must have experience with Chainlink nodes and keeper networks.\n\nIdeal candidate has worked on similar integrations in production.",
+    "reward": "2500",
+    "deadline": "2025-05-19",
+    "tags": ["Chainlink", "Smart Contracts", "Oracle", "Ethereum", "Dapp"]
+  }
+]
