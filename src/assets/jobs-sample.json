@@ -88,7 +88,7 @@
     "tags": ["NFT", "Multichain", "React", "Web3", "Alchemy"]
   },
   {
-    "title": "Token Gating API",
+    "title": "Token Gating API in Node.js",
     "description": "Develop a backend API in Node.js that verifies ERC-20 and NFT ownership using smart contract calls.\n\nThe API will be used to control access to token-gated content across multiple apps.\n\nMust be efficient, secure, and gas-aware.",
     "reward": "70",
     "perHour": true,

@@ -101,8 +101,18 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       const metadata = generateMetadata();
       const metadataUri = await uplaodMetadata(metadata);
       const txHash = await postJob({ sessionClient, walletClient, metadataUri });
-      setRefetchJobsCounter((prev: number) => prev + 1);
       console.log("Post txHash", txHash);
+
+      async function updateHirerJobsOnMined(){
+        const result = await sessionClient.waitForTransaction(txHash);
+        if (result.isErr()){
+          console.error("Error mining job post tx:", txHash);
+          return;
+        }
+        setRefetchJobsCounter((prev: number) => prev + 1);
+      }
+
+      updateHirerJobsOnMined();  // No need to await it.
 
       setTitle("");
       setContent("");
@@ -119,12 +129,13 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
 
   useEffect(() => {
     const sampleJob = sampleJobs[Math.floor(Math.random() * sampleJobs.length)];
+    const finishHour = `T${Math.floor(Math.random() * 24).toString().padStart(2, "0")}:${Math.floor(Math.random() * 60).toString().padStart(2, "0")}`;
     setTitle(sampleJob.title);
     setContent(sampleJob.description);
     setSelectedTags(sampleJob.tags);
-    setDeadline(sampleJob.deadline + "T15:30");
+    setDeadline(sampleJob.deadline + finishHour);
     setFee(Number(sampleJob.reward));
-    setFeePerHour(Math.random() < 0.5 ? true : false);
+    setFeePerHour(sampleJob.perHour);
   }, []);
 
   return (

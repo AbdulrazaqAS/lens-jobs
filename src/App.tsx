@@ -31,7 +31,7 @@ const App = () => {
   const [users, setUsers] = useState<ReadonlyArray<AppUser>>();
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
-  const [page, setPage] = useState(Navs.jobs);
+  const [page, setPage] = useState(Navs.dev);
   const [currentAccount, setCurrentAccount] = useState<Account>();
 
   async function logOutAuthenticatedSession() {
