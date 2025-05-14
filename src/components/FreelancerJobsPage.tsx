@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Post, SessionClient } from "@lens-protocol/client"
 import { fetchJobsByQuery, fetchJobsToExplore } from "../utils/post";
 import { client } from "../utils/client";
+import JobCard from "./JobCard";
 
 interface Profs {
     sessionClient?: SessionClient;
@@ -21,7 +22,7 @@ export default function FreelancerJobsPage({ sessionClient }: Profs) {
             // alert(posts);
         })
 
-        fetchJobsByQuery("Hello").then((paginated) => {
+        fetchJobsByQuery("smart").then((paginated) => {
             if (!paginated) return;
             const jobs = paginated.items as Post[];  // No repost in the app. We're sure of only posts
             // const filteredJobs = jobs.filter((job) => job.__typename === "Post");  // removed reposts
@@ -49,13 +50,9 @@ export default function FreelancerJobsPage({ sessionClient }: Profs) {
             {searchedJobs && searchedJobs.length > 0 &&
                 <div>
                     <p>Searched Jobs</p>
-                    <ul className="list-disc">
-                        {searchedJobs.map((job, idx) => (
-                            <li key={idx}>
-                                {job.id.slice(0, 10)}... 
-                            </li>
-                        ))}
-                    </ul>
+                    {searchedJobs.map((job, idx) => (
+                        <JobCard key={idx} job={job} />
+                    ))}
                 </div>
             }
         </div>
