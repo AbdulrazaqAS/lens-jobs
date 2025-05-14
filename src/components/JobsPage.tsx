@@ -14,12 +14,11 @@ export default function JobsPage({ sessionClient, currentAccount }: Profs) {
 
     let accountMode: AccountModes = AccountModes.Freelancer;
     if (accountModeString) accountMode = parseInt(accountModeString) as AccountModes;
-    console.log("Account Mode", accountMode);
 
     return (
         <div>
             {/* If sessionClient is undefined, user can't interact with the jobs, but can see them */}
-            {accountMode === AccountModes.Freelancer && <FreelancerJobsPage sessionClient={sessionClient} />}
+            {accountMode === AccountModes.Freelancer && <FreelancerJobsPage sessionClient={sessionClient} currentAccount={currentAccount} />}
 
             {/* Used ! because currentAccount must be present to detect hirer since default is freelanccer */}
             {/* sessionClient can be undefined. Like when currentAccount is set but user rejected authenticaion or an error */}

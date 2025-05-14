@@ -1,8 +1,9 @@
-import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed } from "@lens-protocol/client";
+import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed, MainContentFocus } from "@lens-protocol/client";
 import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fetchFeed } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
 import { WalletClient } from "viem";
 import { client } from "./client";
+import { Tags } from "./constants";
 
 const FEED_ADDRESS = import.meta.env.VITE_APP_FEED_ADDRESS;
 
@@ -68,7 +69,23 @@ export async function fetchJobByTxHash(trxHash: string) {
     return result.value;
 }
 
-export async function fetchJobsByTags(tags: string[]) {
+export async function fetchJobsByFeed(addr : string = FEED_ADDRESS) {
+    const result = await fetchPosts(client, {
+        filter: {
+            feeds: [
+                { feed: evmAddress(addr)}
+            ],
+        },
+    });
+
+    if (result.isErr()) {
+        throw result.error;
+    }
+
+    return result.value;
+}
+
+export async function fetchJobsByAllTags(tags: string[]) {
     const result = await fetchPosts(client, {
         filter: {
             feeds: [
@@ -76,6 +93,25 @@ export async function fetchJobsByTags(tags: string[]) {
             ],
             metadata: {
                 tags: { all: tags },
+            },
+        },
+    });
+
+    if (result.isErr()) {
+        throw result.error;
+    }
+
+    return result.value;
+}
+
+export async function fetchJobsByAnyTag(tags: string[]) {
+    const result = await fetchPosts(client, {
+        filter: {
+            feeds: [
+                { feed: evmAddress(FEED_ADDRESS)}
+            ],
+            metadata: {
+                tags: { oneOf: tags },
             },
         },
     });
@@ -125,6 +161,7 @@ export async function fetchAccountRecommendedJobs(addr: string) {
     const result = await fetchPostsForYou(client, {
         account: evmAddress(addr),
         shuffle: false,
+
     });
 
     if (result.isErr()) {
@@ -135,7 +172,15 @@ export async function fetchAccountRecommendedJobs(addr: string) {
 }
 
 export async function fetchJobsToExplore(anyClient: AnyClient = client) {
+    const tags = Tags.map(tag => tag.toLowerCase());
+
     const result = await fetchPostsToExplore(anyClient, {
+        filter: {
+            metadata: {
+                tags: { oneOf: tags },
+                mainContentFocus: [MainContentFocus.Article],
+            },
+        },
         shuffle: false,
     });
 
