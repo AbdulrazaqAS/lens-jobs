@@ -46,3 +46,17 @@ export const Tags: ReadonlyArray<string> = [
     "Community Management",
     "Airdrop Campaigns"
 ];
+
+export enum JobSearchCategories {
+    Content = 'content',
+    Tags = 'tags',
+    Username = 'username',
+    Address = 'address',
+}
+
+// type JobsTabType = 'recent' | 'for You';
+// export const JobsTab: ReadonlyArray<JobsTab> = ["recent", "for You"];
+export enum JobsTab {
+    Recent = "recent",
+    ForYou = "for You",
+}

@@ -1,4 +1,4 @@
-import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed, MainContentFocus } from "@lens-protocol/client";
+import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed, MainContentFocus, PageSize, Cursor } from "@lens-protocol/client";
 import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fetchFeed } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
 import { WalletClient } from "viem";
@@ -69,13 +69,23 @@ export async function fetchJobByTxHash(trxHash: string) {
     return result.value;
 }
 
-export async function fetchJobsByFeed(addr : string = FEED_ADDRESS) {
+export async function fetchJobsByFeed({
+    addr=FEED_ADDRESS,
+    pageSize=PageSize.Ten,
+    cursor=undefined,
+} : {
+    addr?: string,
+    pageSize?: PageSize,
+    cursor?: any,
+} = {}) {
     const result = await fetchPosts(client, {
         filter: {
             feeds: [
                 { feed: evmAddress(addr)}
             ],
         },
+        pageSize,
+        cursor
     });
 
     if (result.isErr()) {
@@ -95,6 +105,7 @@ export async function fetchJobsByAllTags(tags: string[]) {
                 tags: { all: tags },
             },
         },
+
     });
 
     if (result.isErr()) {

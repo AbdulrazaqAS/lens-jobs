@@ -31,7 +31,7 @@ const App = () => {
   const [users, setUsers] = useState<ReadonlyArray<AppUser>>();
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
-  const [page, setPage] = useState("dev");
+  const [page, setPage] = useState(Navs.jobs);
   const [currentAccount, setCurrentAccount] = useState<Account>();
 
   async function logOutAuthenticatedSession() {
@@ -170,14 +170,14 @@ const App = () => {
         if (!paginated) return;
         const users = paginated.items;
         setUsers(users);
-        console.log("Users:", users);
+        // console.log("Users:", users);
 
         const usersAccounts = users?.map(async (user) => {
           const paginated = await listAddressAccounts(user.account.owner);
           // console.log("User accounts:", user.account.owner.slice(-6), paginated.items);
           return paginated.items;
         });
-        console.log("Users accounts:", await Promise.all(usersAccounts));
+        // console.log("Users accounts:", await Promise.all(usersAccounts));
       })
       .catch(console.error);
   }, []);
