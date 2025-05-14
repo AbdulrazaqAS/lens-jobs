@@ -3,6 +3,7 @@
     "title": "Smart Contract Developer (DeFi Protocol)",
     "description": "We're building the next-generation decentralized exchange on Arbitrum.\n\nYour role will involve writing secure, gas-optimized smart contracts in Solidity, integrating oracles (Chainlink), and building protocol logic for liquidity pools and staking rewards.\n\nPrior experience with EVM, Foundry/Hardhat, and basic understanding of ZK rollups is a plus.",
     "reward": "4000",
+    "perHour": false,
     "deadline": "2025-05-20",
     "tags": ["Solidity", "DeFi", "Smart Contracts", "Ethereum", "Arbitrum"]
   },
@@ -10,20 +11,23 @@
     "title": "Lens Protocol Content Strategist",
     "description": "We are looking for a creative content strategist with deep knowledge of Lens Protocol and Web3 social.\n\nResponsibilities include creating engaging blog posts, tutorials, and short-form video scripts that educate and onboard creators to Lens. You'll work closely with devs and designers to shape content for launches and community updates.\n\nBonus if you've used Lens firsthand and are familiar with its social primitives.",
     "reward": "1500",
+    "perHour": false,
     "deadline": "2025-05-18",
     "tags": ["Lens Protocol", "Crypto Marketing", "Content", "Community Management", "Web3 Development"]
   },
   {
     "title": "Rust Developer for Solana NFT Tool",
     "description": "Join our dev team to build a CLI tool and backend services for managing NFT metadata and minting on Solana.\n\nYou must be fluent in Rust and have prior experience building on-chain programs (smart contracts) using Anchor framework. The tool will automate batch minting and metadata uploads to Arweave/IPFS.\n\nFamiliarity with Metaplex is a strong plus.",
-    "reward": "3000",
+    "reward": "30",
+    "perHour": true,
     "deadline": "2025-05-25",
     "tags": ["Rust", "Solana", "NFTs", "IPFS", "Smart Contracts"]
   },
   {
     "title": "Community Manager for DAO Launch",
     "description": "Help us launch and grow our new DAO focused on DeFi education.\n\nYou'll manage Discord, Twitter, and governance forums, organize weekly AMAs, and create engaging campaigns that bring in active members. Experience with Snapshot, Discourse, and DAO tooling is required.\n\nYou should be able to track community sentiment and coordinate feedback loops between core team and community.",
-    "reward": "1200",
+    "reward": "120",
+    "perHour": true,
     "deadline": "2025-05-22",
     "tags": ["DAOs", "Community Management", "DeFi", "Tokenomics", "Crypto Marketing"]
   },
@@ -31,7 +35,129 @@
     "title": "Chainlink Integration Engineer",
     "description": "We're integrating real-world data feeds into our prediction market protocol and need a Chainlink expert.\n\nTasks will include deploying Oracle contracts, testing on testnets (Sepolia/Polygon Mumbai), and working with off-chain data sources via Chainlink Functions. Must have experience with Chainlink nodes and keeper networks.\n\nIdeal candidate has worked on similar integrations in production.",
     "reward": "2500",
+    "perHour": false,
     "deadline": "2025-05-19",
     "tags": ["Chainlink", "Smart Contracts", "Oracle", "Ethereum", "Dapp"]
+  },
+  {
+    "title": "Frontend Engineer (Lens Social App)",
+    "description": "We're developing a social dApp powered by the Lens Protocol.\n\nYou'll build dynamic UI components in React using Tailwind CSS, integrate wallet connection (ConnectKit), and display Lens user feeds and interactions.\n\nExperience with TypeScript and GraphQL is preferred.",
+    "reward": "2000",
+    "perHour": false,
+    "deadline": "2025-05-22",
+    "tags": ["Lens", "Frontend", "React", "Tailwind", "ConnectKit"]
+  },
+  {
+    "title": "EVM Chain Indexer (Rust)",
+    "description": "Join us in building a high-performance chain indexer for an Ethereum-compatible L2.\n\nYour role will involve writing Rust services that parse and store block data in Postgres, handle event decoding, and expose a REST API.\n\nFamiliarity with Substrate, The Graph, or similar tech is welcome.",
+    "reward": "5500",
+    "perHour": false,
+    "deadline": "2025-05-26",
+    "tags": ["Rust", "Indexer", "Blockchain", "EVM", "Postgres"]
+  },
+  {
+    "title": "Smart Contract Security Auditor",
+    "description": "We need a Solidity expert to audit a new DAO and staking contract suite.\n\nYour tasks will include identifying reentrancy risks, front-running vulnerabilities, and testing with Foundry fuzzing.\n\nA solid understanding of access control and proxy patterns is a must.",
+    "reward": "3000",
+    "perHour": false,
+    "deadline": "2025-05-21",
+    "tags": ["Solidity", "Audit", "Security", "Foundry", "DAO"]
+  },
+  {
+    "title": "ZK Proof Developer (zkSync)",
+    "description": "Help implement zk-SNARK-based vote verification for our DAO governance layer.\n\nYou’ll write custom circuits using Circom and integrate them in a zkSync-compatible smart contract.\n\nExperience with ZKP concepts and tooling is required.",
+    "reward": "80",
+    "perHour": true,
+    "deadline": "2025-05-29",
+    "tags": ["ZK", "zkSync", "Circom", "Governance", "zk-SNARKs"]
+  },
+  {
+    "title": "Crypto Content Writer (Web3 Education)",
+    "description": "Write educational blog posts and guides on crypto topics such as DeFi, DAOs, and NFTs.\n\nYou'll work with our dev team to explain technical concepts in accessible language, backed by real examples.\n\nWriting experience in crypto/web3 is essential.",
+    "reward": "35",
+    "perHour": true,
+    "deadline": "2025-05-23",
+    "tags": ["Writing", "Education", "DeFi", "NFT", "DAOs"]
+  },
+  {
+    "title": "Multichain NFT Dashboard",
+    "description": "Build a React dashboard that aggregates NFT holdings from Ethereum, Polygon, and Arbitrum.\n\nIncludes wallet connection, metadata rendering, and filters for collections and chains.\n\nExperience with Moralis or Alchemy SDK preferred.",
+    "reward": "2500",
+    "perHour": false,
+    "deadline": "2025-05-24",
+    "tags": ["NFT", "Multichain", "React", "Web3", "Alchemy"]
+  },
+  {
+    "title": "Token Gating API",
+    "description": "Develop a backend API in Node.js that verifies ERC-20 and NFT ownership using smart contract calls.\n\nThe API will be used to control access to token-gated content across multiple apps.\n\nMust be efficient, secure, and gas-aware.",
+    "reward": "70",
+    "perHour": true,
+    "deadline": "2025-05-20",
+    "tags": ["Token Gating", "Node.js", "Web3", "API", "ERC20"]
+  },
+  {
+    "title": "Snapshot Voting UI Integration",
+    "description": "We're launching a DAO using Snapshot and need a frontend to show and cast proposals.\n\nYou'll fetch proposals via the Snapshot API and integrate vote submission using connected wallets.\n\nReact, Tailwind, and wagmi experience required.",
+    "reward": "2100",
+    "perHour": false,
+    "deadline": "2025-05-25",
+    "tags": ["Snapshot", "DAO", "Frontend", "Voting", "wagmi"]
+  },
+  {
+    "title": "Stablecoin Arbitrage Bot",
+    "description": "Create a bot that identifies and executes arbitrage opportunities across Curve, Uniswap, and Balancer pools.\n\nMust monitor price deltas and account for slippage and gas cost.\n\nSolid background in MEV and DeFi preferred.",
+    "reward": "5000",
+    "perHour": false,
+    "deadline": "2025-05-28",
+    "tags": ["Bot", "Arbitrage", "DeFi", "Stablecoin", "Uniswap"]
+  },
+  {
+    "title": "Developer Advocate (EVM Tooling)",
+    "description": "We're seeking a technical evangelist to create demos, tutorials, and workshops around our EVM development tools.\n\nYou'll interact with devs on Discord, write sample apps, and speak at events.\n\nMust be passionate about Web3 and teaching.",
+    "reward": "3200",
+    "perHour": false,
+    "deadline": "2025-05-30",
+    "tags": ["Advocacy", "DevRel", "EVM", "Workshops", "Tutorials"]
+  },
+  {
+    "title": "Lens Analytics Script",
+    "description": "Write a TypeScript script that fetches a user's Lens activity and generates summary stats.\n\nMetrics include posts, mirrors, followers, and engagement rates. Output should be in JSON.\n\nUse Lens API and support pagination.",
+    "reward": "20",
+    "perHour": true,
+    "deadline": "2025-05-19",
+    "tags": ["Lens", "Analytics", "Script", "TypeScript", "API"]
+  },
+  {
+    "title": "Chainlink Oracle Integration",
+    "description": "Integrate Chainlink price feeds and randomness VRF into our staking game contract.\n\nYou'll work with Solidity, deploy to testnets, and simulate feed results.\n\nMust know Chainlink best practices and LINK token mechanics.",
+    "reward": "55",
+    "perHour": true,
+    "deadline": "2025-05-21",
+    "tags": ["Chainlink", "Oracle", "Solidity", "VRF", "Feeds"]
+  },
+  {
+    "title": "Gas Efficiency Report Generator",
+    "description": "Build a CLI tool that analyzes gas usage of smart contract deployments and function calls.\n\nShould integrate with Hardhat and output CSV reports comparing deployments.\n\nGreat for devs who enjoy tooling and optimization.",
+    "reward": "1600",
+    "perHour": false,
+    "deadline": "2025-05-22",
+    "tags": ["CLI", "Gas", "Tooling", "Hardhat", "Optimization"]
+  },
+  {
+    "title": "Design Web3 Job Board UI (Figma)",
+    "description": "Help us design a sleek, crypto-themed UI for a decentralized job board.\n\nMust be comfortable with dark UIs, modern layout grids, and Figma.\n\nBonus if you understand basic Web3 UX flows.",
+    "reward": "45",
+    "perHour": true,
+    "deadline": "2025-05-27",
+    "tags": ["Figma", "Design", "Job Board", "UX", "Web3"]
+  },
+  {
+    "title": "Build a Delegation Contract System",
+    "description": "Create a smart contract system that lets users delegate voting rights for DAOs.\n\nShould support signature-based delegation, cancelation, and event logging.\n\nAudit-friendly architecture is a must.",
+    "reward": "4400",
+    "perHour": false,
+    "deadline": "2025-05-31",
+    "tags": ["Delegation", "Smart Contracts", "Solidity", "DAO", "Signatures"]
   }
 ]
+
