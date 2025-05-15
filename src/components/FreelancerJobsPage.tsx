@@ -4,6 +4,7 @@ import { fetchAccountRecommendedJobs, fetchJobsByFeed, fetchJobsByQuery, fetchJo
 import { client } from "../utils/client";
 import JobCard from "./JobCard";
 import { JobsTab, JobSearchCategories } from "../utils/constants";
+import JobSkeleton from "./JobSkeleton";
 
 interface Profs {
     sessionClient?: SessionClient;
@@ -24,16 +25,17 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     const [lastPageInfo, setLastPageInfo] = useState<PaginatedResultInfo>();
     const [searchCategory, setSearchCategory] = useState(JobSearchCategories.Content);
     const [searchQuery, setSearchQuery] = useState('');
+    const [loading, setLoading] = useState(true);
 
     const pageSize = PageSize.Ten;
     const jobsPerPage = pageSize === PageSize.Ten ? 10 : 50;
 
     const changeTab = (tab: JobsTab) => {
         setActiveTab(tab);
-        setCurrentPage(1);
-      };
+        // setCurrentPage(0);
+    };
 
-    const getPageJobsFromJobs = (page:number, jobs: Post[]) => {
+    const getPageJobsFromJobs = (page: number, jobs: Post[]) => {
         const pageJobs = jobs.slice(
             page * jobsPerPage,
             (page + 1) * jobsPerPage
@@ -47,16 +49,16 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
         const pageAlreadyLoaded = pageJobsLoaded(currentPage + 1);
 
         if (pageAlreadyLoaded || lastPageHasNext) {  // order is important here
-            setCurrentPage(currentPage + 1);
             scrollToTop();
+            setCurrentPage(currentPage + 1);
         }
         else console.error("Page has no next page");
     }
 
     const gotoPrevPage = () => {
-        if (currentPage > 0){
-            setCurrentPage(currentPage - 1);
+        if (currentPage > 0) {
             scrollToTop();
+            setCurrentPage(currentPage - 1);
         }
         else console.error("Page has no prev page");
     }
@@ -67,36 +69,35 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     }
 
     useEffect(() => {
-        async function fetchJobs(){
+        async function fetchJobs() {
             let pageJobs: Post[];
-
-            if (pageJobsLoaded(currentPage)){
+            
+            console.log("Page", currentPage);
+            if (pageJobsLoaded(currentPage)) {
                 console.log("Current page already loaded", currentPage);
                 pageJobs = getPageJobsFromJobs(currentPage, feedJobs);
             } else {
                 try {
                     console.log("Current page not already loaded", currentPage);
                     const cursor = lastPageInfo?.next;
-                    console.log("Cursor1", lastPageInfo);
-                    const result = await fetchJobsByFeed({cursor});
-                    if (!result){ // TODO: Test this error
+                    const result = await fetchJobsByFeed({ cursor });
+                    if (!result) { // TODO: Test this error
                         throw new Error(`Error fetching ${currentPage} jobs.`);
                     }
 
-                    const {items, pageInfo} = result;
+                    const { items, pageInfo } = result;
                     pageJobs = items as Post[];  // No repost in the app. We're sure of only posts
                     setLastPageInfo(pageInfo);
                     setFeedJobs(prev => [...prev, ...pageJobs]);
-                    console.log("Cursor2", pageInfo)
                 } catch (error) {
                     console.error(`Error fetching page jobs (Trying prev page ${currentPage - 1}):`, error);
                     gotoPrevPage();
                     return;
                 }
             }
-            
+
             setCurrentPageJobs(pageJobs);
-            console.log("Page", currentPage);
+            if (loading) setLoading(false);
             console.log("Page jobs:", pageJobs?.length, "first id", pageJobs && pageJobs[0].id.slice(-5));
         }
 
@@ -164,8 +165,8 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                         key={tab}
                         onClick={() => changeTab(tab)}
                         className={`pb-2 capitalize ${activeTab === tab
-                                ? 'border-b-2 border-primary text-primary font-medium'
-                                : 'text-gray-400 hover:text-white'
+                            ? 'border-b-2 border-primary text-primary font-medium'
+                            : 'text-gray-400 hover:text-white'
                             }`}
                     >
                         {tab === JobsTab.Recent ? 'Recent Jobs' : 'Jobs For You'}
@@ -175,14 +176,15 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
 
             {/* Jobs Feed */}
             <div className="grid gap-6">
-                {currentPageJobs.length > 0 ? (
-                    currentPageJobs.map((job, i) => (
-                        <JobCard key={i} job={job} />
-                    ))
+                {loading ? (
+                    Array.from({ length: jobsPerPage }).map((_, i) => <JobSkeleton key={i} />)
+                ) : currentPageJobs.length > 0 ? (
+                    currentPageJobs.map((job, i) => <JobCard key={i} job={job} />)
                 ) : (
                     <p className="text-gray-500">No jobs found for this search.</p>
                 )}
             </div>
+
 
             {/* Pagination */}
             <div className="flex justify-between items-center mt-6">
@@ -194,7 +196,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                     Prev
                 </button>
                 <span className="text-sm text-gray-400">
-                    Page {currentPage+1}
+                    Page {currentPage + 1}
                 </span>
                 <button
                     disabled={!pageJobsLoaded(currentPage + 1) || !lastPageInfo || !Boolean(lastPageInfo?.next)}
