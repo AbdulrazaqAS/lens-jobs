@@ -78,21 +78,25 @@ export async function fetchJobsByFeed({
     pageSize?: PageSize,
     cursor?: any,
 } = {}) {
-    const result = await fetchPosts(client, {
-        filter: {
-            feeds: [
-                { feed: evmAddress(addr)}
-            ],
-        },
-        pageSize,
-        cursor
-    });
-
-    if (result.isErr()) {
-        throw result.error;
+    try {
+        const result = await fetchPosts(client, {
+            filter: {
+                feeds: [
+                    { feed: evmAddress(addr)}
+                ],
+            },
+            pageSize,
+            cursor
+        });
+    
+        if (result.isErr()) {
+            throw result.error;
+        }
+    
+        return result.value;
+    } catch (error) {
+        throw error;
     }
-
-    return result.value;
 }
 
 export async function fetchJobsByAllTags(tags: string[]) {

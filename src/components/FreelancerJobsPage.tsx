@@ -21,7 +21,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     const [activeTab, setActiveTab] = useState<JobsTab>(JobsTab.Recent);
     const [currentPage, setCurrentPage] = useState(0);
     const [currentPageJobs, setCurrentPageJobs] = useState<ReadonlyArray<Post>>([]);
-    const [pagesInfo, setPagesInfo] = useState<PaginatedResultInfo[]>([]);
+    const [lastPageInfo, setLastPageInfo] = useState<PaginatedResultInfo>();
     const [searchCategory, setSearchCategory] = useState(JobSearchCategories.Content);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -43,8 +43,10 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     }
 
     const gotoNextPage = () => {
-        const hasNextPage = pagesInfo[currentPage]?.next;
-        if (hasNextPage) {
+        const lastPageHasNext = lastPageInfo?.next;
+        const pageAlreadyLoaded = pageJobsLoaded(currentPage + 1);
+
+        if (pageAlreadyLoaded || lastPageHasNext) {  // order is important here
             setCurrentPage(currentPage + 1);
             scrollToTop();
         }
@@ -52,8 +54,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     }
 
     const gotoPrevPage = () => {
-        const hasPrevPage = pagesInfo[currentPage]?.prev;
-        if (hasPrevPage && currentPage > 0){
+        if (currentPage > 0){
             setCurrentPage(currentPage - 1);
             scrollToTop();
         }
@@ -73,21 +74,25 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                 console.log("Current page already loaded", currentPage);
                 pageJobs = getPageJobsFromJobs(currentPage, feedJobs);
             } else {
-                console.log("Current page not already loaded", currentPage);
-                const cursor = pagesInfo[currentPage]?.next;
-                console.log("Cursor1", pagesInfo[currentPage]);
-                const result = await fetchJobsByFeed({cursor});
-                if (!result){ // TODO: Test this error
-                    console.error(`Error fetching ${currentPage} jobs. Trying prev page ${currentPage - 1}`);
+                try {
+                    console.log("Current page not already loaded", currentPage);
+                    const cursor = lastPageInfo?.next;
+                    console.log("Cursor1", lastPageInfo);
+                    const result = await fetchJobsByFeed({cursor});
+                    if (!result){ // TODO: Test this error
+                        throw new Error(`Error fetching ${currentPage} jobs.`);
+                    }
+
+                    const {items, pageInfo} = result;
+                    pageJobs = items as Post[];  // No repost in the app. We're sure of only posts
+                    setLastPageInfo(pageInfo);
+                    setFeedJobs(prev => [...prev, ...pageJobs]);
+                    console.log("Cursor2", pageInfo)
+                } catch (error) {
+                    console.error(`Error fetching page jobs (Trying prev page ${currentPage - 1}):`, error);
                     gotoPrevPage();
                     return;
                 }
-
-                const {items, pageInfo} = result;
-                pageJobs = items as Post[];  // No repost in the app. We're sure of only posts
-                setPagesInfo(prev => [...prev, pageInfo])
-                setFeedJobs(prev => [...prev, ...pageJobs]);
-                console.log("Cursor2", pageInfo)
             }
             
             setCurrentPageJobs(pageJobs);
@@ -125,7 +130,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     }, [currentPage]);
 
     return (
-        <div className="w-full max-w-4xl mx-auto mt-10 px-4 text-white">
+        <div className="w-full max-w-4xl mx-auto px-4 text-white">
             {/* Search Input + Dropdown */}
             <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
                 <div className="relative w-full">
@@ -192,7 +197,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                     Page {currentPage+1}
                 </span>
                 <button
-                    disabled={false}
+                    disabled={!pageJobsLoaded(currentPage + 1) || !lastPageInfo || !Boolean(lastPageInfo?.next)}
                     className="px-4 py-2 rounded-lg bg-surface text-gray-300 hover:bg-slate-800 disabled:opacity-50"
                     onClick={gotoNextPage}
                 >
