@@ -1,7 +1,7 @@
 export enum Navs {
-    dev = "dev",
     jobs = "jobs",
-    profile = "profile"
+    profile = "profile",
+    dev = "dev",
 }
 
 export enum AccountModes {

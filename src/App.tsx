@@ -31,7 +31,7 @@ const App = () => {
   const [users, setUsers] = useState<ReadonlyArray<AppUser>>();
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
-  const [page, setPage] = useState(Navs.dev);
+  const [page, setPage] = useState(Navs.jobs);
   const [currentAccount, setCurrentAccount] = useState<Account>();
 
   const topRef = useRef<HTMLDivElement | null>(null);
@@ -119,11 +119,11 @@ const App = () => {
 
   // Check whether wallet has an account
   useEffect(() => {
-    console.log({
-      IsConnected: account.isConnected,
-      AcctStatus: account.status,
-      HasSessionClient: Boolean(sessionClient),
-    });
+    // console.log({
+    //   IsConnected: account.isConnected,
+    //   AcctStatus: account.status,
+    //   HasSessionClient: Boolean(sessionClient),
+    // });
 
     if (account.isConnected){
       pickCurrentAccount();
@@ -135,13 +135,13 @@ const App = () => {
   }, [account.status]);
 
   useEffect(() => {
-    console.log({
-      IsConnected: account.isConnected,
-      AcctStatus: account.status,
-      HasWalletClient: Boolean(walletClient),
-      HasSessionClient: Boolean(sessionClient),
-      HasCurrentAccount: Boolean(currentAccount),
-    });
+    // console.log({
+    //   IsConnected: account.isConnected,
+    //   AcctStatus: account.status,
+    //   HasWalletClient: Boolean(walletClient),
+    //   HasSessionClient: Boolean(sessionClient),
+    //   HasCurrentAccount: Boolean(currentAccount),
+    // });
 
     // Included "sessionClient" to return if session client is already set.
     // Particularly useful after creating a new account which will update
@@ -192,8 +192,7 @@ const App = () => {
 
   return (
     <div ref={topRef} className="p-5 space-y-5 pt-23">
-      {/* <ConnectKitButton /> */}
-      <NavBar setPage={setPage} />
+      <NavBar currentPage={page} setPage={setPage} />
 
       {page === Navs.dev && (
         <>
