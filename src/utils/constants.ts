@@ -20,6 +20,7 @@ export enum JobAttributeName {
     fee = "fee",
     feePerHour = "feePerHour",
     deadline = "deadline",
+    status = "status",
 }
 
 export const Tags: ReadonlyArray<string> = [
