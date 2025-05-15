@@ -57,9 +57,21 @@ export enum JobSearchCategories {
     Address = 'address',
 }
 
-// type JobsTabType = 'recent' | 'for You';
-// export const JobsTab: ReadonlyArray<JobsTab> = ["recent", "for You"];
 export enum JobsTab {
     Recent = "recent",
     ForYou = "for You",
 }
+
+export enum JobStatus {
+    Hiring = 'hiring',
+    Finised = 'finished',
+    Sealed = 'sealed',
+    Deleted =  'deleted',
+}
+
+export const JobStatusStyles: Record<JobStatus, string> = {
+    hiring: 'bg-secondary text-black',
+    finished: 'bg-accent text-black',
+    sealed: 'bg-primary text-white',
+    deleted: 'bg-danger text-white',
+};

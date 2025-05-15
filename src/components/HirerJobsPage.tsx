@@ -1,50 +1,72 @@
-import React, { useState } from 'react';
+import { Account, Post, SessionClient } from '@lens-protocol/client';
+import { useEffect, useState } from 'react';
+import { fetchJobsByHirer } from '../utils/post';
+import { JobAttributeName, JobStatus } from '../utils/constants';
+import HirerJobsPageJobCard from './HirerJobsPageJobCard';
 
-type JobStatus = 'hiring' | 'finished' | 'sealed' | 'deleted';
+// interface Job {
+//   id: string;
+//   title: string;
+//   reward: number;
+//   status: JobStatus;
+//   createdAt: string;
+// }
 
-interface Job {
-  id: string;
-  title: string;
-  reward: number;
-  status: JobStatus;
-  createdAt: string;
+enum Tabs {
+  AllJobs = 'All Jobs',
+  Completed = 'Completed Jobs',
+  Sealed = 'Sealed Jobs',
+  Hiring = 'Hiring Jobs',
+  TotalSpent = 'Total Spent',
 }
 
-const TABS = ['All Jobs', 'Completed Jobs', 'Money Spent'] as const;
-type Tab = typeof TABS[number];
+interface Profs {
+  sessionClient: SessionClient;
+  currentAccount: Account;
+}
 
-const statusStyles: Record<JobStatus, string> = {
-  hiring: 'bg-secondary text-black',
-  finished: 'bg-accent text-black',
-  sealed: 'bg-primary text-white',
-  deleted: 'bg-danger text-white',
-};
-
-// Dummy data (replace with real backend data)
-const dummyJobs: Job[] = Array.from({ length: 32 }, (_, i) => ({
-  id: `job-${i + 1}`,
-  title: `Job Title #${i + 1}`,
-  reward: 100 + i * 10,
-  status: i % 4 === 0 ? 'finished' : i % 4 === 1 ? 'hiring' : i % 4 === 2 ? 'sealed' : 'deleted',
-  createdAt: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
-}));
-
-const PAGE_SIZE = 10;
-
-export default function CreatorJobsPage() {
-  const [currentTab, setCurrentTab] = useState<Tab>('All Jobs');
+export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) {
+  const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.AllJobs);
   const [currentPage, setCurrentPage] = useState(1);
+  const [jobs, setJobs] = useState<ReadonlyArray<Post>>([]);
+  const [finishedJobs, setFinishedJobs] = useState<ReadonlyArray<Post>>([]);
+  const [showNewJobForm, setShowNewJobForm] = useState(false);
+  const [refetchJobsCounter, setRefetchJobsCounter] = useState(0);
+  const [totalSpent, setTotalSpent] = useState(0);
+  
+  const PAGE_SIZE = 10;
 
-  const filteredJobs = dummyJobs.filter(job => {
-    if (currentTab === 'Completed Jobs') return job.status === 'finished';
-    return true;
-  });
+  const filterJobsByStatus =  (status: JobStatus) => {
+    const filteredJobs = jobs.filter((job) => {
+      if (job.metadata.__typename !== "ArticleMetadata") return false;
+      const jobStatus = job.metadata.attributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? "Error";
+      return jobStatus === status;
+    });
 
-  const paginatedJobs = filteredJobs.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    return filteredJobs;
+  };
 
-  const totalSpent = dummyJobs
-    .filter(j => j.status === 'finished')
-    .reduce((sum, job) => sum + job.reward, 0);
+  const getTotalSpent = () => {
+    const totalSpent = finishedJobs.reduce((sum, job) => {
+      if (job.metadata.__typename !== "ArticleMetadata") return 0;
+      const fee = job.metadata.attributes?.find((attr) => attr.key === JobAttributeName.fee)?.value ?? 0;
+      return sum + Number(fee);
+    }, 0);
+
+    return totalSpent;
+  }
+
+  useEffect(() => {
+      fetchJobsByHirer(currentAccount.address).then((paginated) => {
+          if (!paginated) return;
+          const jobs = paginated.items;
+          const filteredJobs = jobs.filter((job) => job.__typename === "Post");  // only posts, removed reposts
+          console.log("Account's jobs", filteredJobs);
+          setJobs(filteredJobs);
+      })
+
+      setShowNewJobForm(false);
+  }, [refetchJobsCounter]);
 
   return (
     <div className="p-4 text-white max-w-5xl mx-auto">
@@ -52,7 +74,7 @@ export default function CreatorJobsPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
-        {TABS.map((tab) => (
+        {Object.values(Tabs).map((tab) => (
           <button
             key={tab}
             className={`px-4 py-2 rounded-full text-sm font-medium transition ${
@@ -66,7 +88,7 @@ export default function CreatorJobsPage() {
             }}
           >
             {tab}
-            {tab === 'Money Spent' && (
+            {tab === Tabs.TotalSpent && (
               <span className="ml-2 text-accent font-semibold">${totalSpent}</span>
             )}
           </button>
@@ -75,28 +97,14 @@ export default function CreatorJobsPage() {
 
       {/* Job List */}
       <div className="space-y-4">
-        {paginatedJobs.map((job) => (
-          <div
-            key={job.id}
-            className="bg-surface rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow"
-          >
-            <div>
-              <h2 className="text-lg font-semibold">{job.title}</h2>
-              <p className="text-sm text-gray-400">Created: {job.createdAt}</p>
-            </div>
-            <div className="flex flex-col sm:items-end text-sm gap-2">
-              <span className="text-accent font-medium">${job.reward}</span>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[job.status]}`}>
-                {job.status}
-              </span>
-            </div>
-          </div>
+        {jobs.map((job) => (
+          <HirerJobsPageJobCard job={job} />
         ))}
       </div>
 
       {/* Pagination */}
       <div className="mt-6 flex justify-center gap-2">
-        {Array.from({ length: Math.ceil(filteredJobs.length / PAGE_SIZE) }).map((_, i) => (
+        {Array.from({ length: Math.ceil(jobs.length / PAGE_SIZE) }).map((_, i) => (
           <button
             key={i}
             className={`w-8 h-8 rounded-full text-sm font-medium ${

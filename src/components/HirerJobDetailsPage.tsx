@@ -1,8 +1,6 @@
 import { ArticleMetadata, Post } from '@lens-protocol/client';
 import { useState } from 'react';
-import { JobAttributeName } from '../utils/constants';
-
-type JobStatus = 'hiring' | 'finished' | 'sealed' | 'deleted';
+import { JobAttributeName, JobStatus, JobStatusStyles } from '../utils/constants';
 
 interface Props {
     job: Post;
@@ -10,13 +8,6 @@ interface Props {
     onDelete: () => void;
     onUpdate: () => void;
 }
-
-const statusStyles: Record<JobStatus, string> = {
-    hiring: 'bg-secondary text-black',
-    finished: 'bg-accent text-black',
-    sealed: 'bg-primary text-white',
-    deleted: 'bg-danger text-white',
-};
 
 export default function HirerJobDetails({
     job,
@@ -53,7 +44,7 @@ export default function HirerJobDetails({
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                 <div>
                     <h1 className="text-2xl font-bold">{title}</h1>
-                    <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${statusStyles[status as JobStatus]}`}>
+                    <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${JobStatusStyles[status as JobStatus]}`}>
                         {status.toUpperCase()}
                     </span>
                 </div>

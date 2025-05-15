@@ -21,7 +21,7 @@ export default function NavBar({
 
   return (
     // <nav className="fixed top-0 left-0 w-full z-50 bg-background text-white shadow-md">
-    <nav className="fixed top-0 left-0 w-full z-50 bg-background/40 backdrop-blur-md border-b border-surface shadow-lg">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-background/40 backdrop-blur-md border-b-3 border-surface shadow-lg">
       <div className="flex items-center justify-between px-4 py-4 max-w-7xl mx-auto">
         <div className="text-2xl font-bold text-primary">LensJobs</div>
 
