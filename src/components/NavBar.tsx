@@ -3,49 +3,59 @@ import { Menu, X } from "lucide-react";
 import { ConnectKitButton } from "connectkit";
 import { Navs } from "../utils/constants";
 
-export default function NavBar({ setPage } : {setPage: Function}) {
+export default function NavBar({
+  setPage,
+  currentPage,
+}: {
+  setPage: (page: Navs) => void;
+  currentPage: string;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const navClass = (nav: string) =>
+    `cursor-pointer px-3 py-1 rounded transition-all ${
+      currentPage === nav
+        ? "bg-primary text-white shadow"
+        : "text-gray-300 hover:text-white hover:bg-surface"
+    }`;
+
   return (
-    <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
-      <div className="flex items-center justify-between px-4 py-3 md:py-4">
-        <div className="text-xl font-bold text-blue-600">LensJobs</div>
+    // <nav className="fixed top-0 left-0 w-full z-50 bg-background text-white shadow-md">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-background/40 backdrop-blur-md border-b border-surface shadow-lg">
+      <div className="flex items-center justify-between px-4 py-4 max-w-7xl mx-auto">
+        <div className="text-2xl font-bold text-primary">LensJobs</div>
 
         {/* Desktop Nav */}
-        <ul className="hidden md:flex gap-6 text-gray-700 font-medium">
+        <ul className="hidden md:flex gap-6 items-center">
           {Object.values(Navs).map((nav) => (
             <li
               key={nav}
               onClick={() => setPage(nav)}
-              className="cursor-pointer hover:text-blue-600 transition"
+              className={navClass(nav)}
             >
-              {`${nav.charAt(0).toUpperCase()}${nav.substring(1)}`}
+              {nav.charAt(0).toUpperCase() + nav.slice(1)}
             </li>
           ))}
         </ul>
 
-        <div className="flex items-center gap-4">
-          {/* Button/text for md and lg screens */}
-          {/* <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition hidden md:block"
-          >
-            Connect Wallet
-          </button> */}
-          <div className="hidden md:block">
-            <ConnectKitButton />
-          </div>
-
-          {/* Hamburger for Mobile */}
-          <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+        {/* Wallet Button */}
+        <div className="hidden md:block">
+          <ConnectKitButton />
         </div>
+
+        {/* Hamburger for Mobile */}
+        <button
+          className="md:hidden text-white"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
       </div>
 
-      {/* Mobile Nav Menu */}
+      {/* Mobile Nav */}
       {menuOpen && (
-        <div className="md:hidden px-4 pb-4 pt-2 bg-white border-t">
-          <ul className="flex flex-col gap-3 text-gray-700">
+        <div className="md:hidden px-4 pt-2 pb-4 bg-background border-t border-surface text-gray-200">
+          <ul className="flex flex-col gap-3">
             {Object.values(Navs).map((nav) => (
               <li
                 key={nav}
@@ -53,19 +63,13 @@ export default function NavBar({ setPage } : {setPage: Function}) {
                   setPage(nav);
                   setMenuOpen(false);
                 }}
-                className="cursor-pointer hover:text-blue-600 transition"
+                className={navClass(nav)}
               >
-                {`${nav.charAt(0).toUpperCase()}${nav.substring(1)}`}
+                {nav.charAt(0).toUpperCase() + nav.slice(1)}
               </li>
             ))}
           </ul>
-
           <div className="mt-4">
-            {/* <button
-              className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition"
-            >
-              Connect Wallet
-            </button> */}
             <ConnectKitButton />
           </div>
         </div>
