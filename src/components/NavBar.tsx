@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { ConnectKitButton } from "connectkit";
 import { Navs } from "../utils/constants";

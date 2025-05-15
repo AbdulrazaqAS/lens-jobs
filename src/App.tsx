@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
 
 import { evmAddress } from "@lens-protocol/client";
@@ -33,6 +33,14 @@ const App = () => {
   const [sessionClient, setSessionClient] = useState<SessionClient>(); // TODO: Use the storage something
   const [page, setPage] = useState(Navs.dev);
   const [currentAccount, setCurrentAccount] = useState<Account>();
+
+  const topRef = useRef<HTMLDivElement | null>(null);
+
+  function scrollToTop(){
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   async function logOutAuthenticatedSession() {
     // Acct Owner and manager only
@@ -183,7 +191,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="p-5 space-y-5 pt-23">
+    <div ref={topRef} className="p-5 space-y-5 pt-23">
       {/* <ConnectKitButton /> */}
       <NavBar setPage={setPage} />
 
@@ -254,7 +262,7 @@ const App = () => {
         </>
       )}
 
-      {page === Navs.jobs && <JobsPage currentAccount={currentAccount} sessionClient={sessionClient} />}
+      {page === Navs.jobs && <JobsPage currentAccount={currentAccount} sessionClient={sessionClient} scrollToTop={scrollToTop} />}
       {page === Navs.profile && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} setCurrentAccount={setCurrentAccount} sessionClient={sessionClient!}/>}
       {/* TODO: If no authenticated session, show create account button in profile page */}
 

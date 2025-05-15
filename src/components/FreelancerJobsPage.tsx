@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Account, Cursor, PageSize, PaginatedResultInfo, Post, SessionClient } from "@lens-protocol/client"
+import { Account, PageSize, PaginatedResultInfo, Post, SessionClient } from "@lens-protocol/client"
 import { fetchAccountRecommendedJobs, fetchJobsByFeed, fetchJobsByQuery, fetchJobsToExplore } from "../utils/post";
 import { client } from "../utils/client";
 import JobCard from "./JobCard";
@@ -8,9 +8,10 @@ import { JobsTab, JobSearchCategories } from "../utils/constants";
 interface Profs {
     sessionClient?: SessionClient;
     currentAccount?: Account;
+    scrollToTop: Function;
 }
 
-export default function FreelancerJobsPage({ sessionClient, currentAccount }: Profs) {
+export default function FreelancerJobsPage({ sessionClient, currentAccount, scrollToTop }: Profs) {
     // const [feedJobs, setFeedJobs] = useState<ReadonlyArray<Post>>();
     const [feedJobs, setFeedJobs] = useState<Post[]>([]);
     const [trendingJobs, setTrendingJobs] = useState<ReadonlyArray<Post>>([]);
@@ -43,13 +44,19 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount }: Pr
 
     const gotoNextPage = () => {
         const hasNextPage = pagesInfo[currentPage]?.next;
-        if (hasNextPage) setCurrentPage(currentPage + 1);
+        if (hasNextPage) {
+            setCurrentPage(currentPage + 1);
+            scrollToTop();
+        }
         else console.error("Page has no next page");
     }
 
     const gotoPrevPage = () => {
         const hasPrevPage = pagesInfo[currentPage]?.prev;
-        if (hasPrevPage && currentPage > 0) setCurrentPage(currentPage - 1);
+        if (hasPrevPage && currentPage > 0){
+            setCurrentPage(currentPage - 1);
+            scrollToTop();
+        }
         else console.error("Page has no prev page");
     }
 
@@ -82,7 +89,8 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount }: Pr
                 setFeedJobs(prev => [...prev, ...pageJobs]);
                 console.log("Cursor2", pageInfo)
             }
-
+            
+            setCurrentPageJobs(pageJobs);
             console.log("Page", currentPage);
             console.log("Page jobs:", pageJobs?.length, "first id", pageJobs && pageJobs[0].id.slice(-5));
         }
@@ -117,10 +125,6 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount }: Pr
     }, [currentPage]);
 
     return (
-        // <div className="space-x-5">
-        //     <button onClick={gotoPrevPage}>Prev</button>
-        //     <button onClick={gotoNextPage}>Next</button>
-        // </div>
         <div className="w-full max-w-4xl mx-auto mt-10 px-4 text-white">
             {/* Search Input + Dropdown */}
             <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
@@ -159,15 +163,15 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount }: Pr
                                 : 'text-gray-400 hover:text-white'
                             }`}
                     >
-                        {tab === 'recent' ? 'Recent Jobs' : 'Jobs For You'}
+                        {tab === JobsTab.Recent ? 'Recent Jobs' : 'Jobs For You'}
                     </button>
                 ))}
             </div>
 
             {/* Jobs Feed */}
             <div className="grid gap-6">
-                {feedJobs.length > 0 ? (
-                    feedJobs.map((job, i) => (
+                {currentPageJobs.length > 0 ? (
+                    currentPageJobs.map((job, i) => (
                         <JobCard key={i} job={job} />
                     ))
                 ) : (
@@ -178,17 +182,17 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount }: Pr
             {/* Pagination */}
             <div className="flex justify-between items-center mt-6">
                 <button
-                    disabled={currentPage === 1}
+                    disabled={currentPage === 0}
                     className="px-4 py-2 rounded-lg bg-surface text-gray-300 hover:bg-slate-800 disabled:opacity-50"
                     onClick={gotoPrevPage}
                 >
                     Prev
                 </button>
                 <span className="text-sm text-gray-400">
-                    Page {currentPage} of {Math.ceil(feedJobs.length / jobsPerPage)}
+                    Page {currentPage+1}
                 </span>
                 <button
-                    disabled={currentPage >= Math.ceil(feedJobs.length / jobsPerPage)}
+                    disabled={false}
                     className="px-4 py-2 rounded-lg bg-surface text-gray-300 hover:bg-slate-800 disabled:opacity-50"
                     onClick={gotoNextPage}
                 >
@@ -197,34 +201,4 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount }: Pr
             </div>
         </div>
     );
-
-    // return (
-    //     <div className="space-y-5">
-    //         {feedJobs && feedJobs.length > 0 &&
-    //             <div className="space-y-4">
-    //                 <p>Feed Jobs</p>
-    //                 {feedJobs.map((job, idx) => (
-    //                     <JobCard key={idx} job={job} />
-    //                 ))}
-    //             </div>
-
-    //         }
-    //         {trendingJobs && trendingJobs.length > 0 &&
-    //             <div className="space-y-4">
-    //                 <p>Trending Jobs</p>
-    //                 {trendingJobs.map((job, idx) => (
-    //                     <JobCard key={idx} job={job} />
-    //                 ))}
-    //             </div>
-    //         }
-    //         {searchedJobs && searchedJobs.length > 0 &&
-    //             <div className="space-y-4">
-    //                 <p>Searched Jobs</p>
-    //                 {searchedJobs.map((job, idx) => (
-    //                     <JobCard key={idx} job={job} />
-    //                 ))}
-    //             </div>
-    //         }
-    //     </div>
-    // )
 }
