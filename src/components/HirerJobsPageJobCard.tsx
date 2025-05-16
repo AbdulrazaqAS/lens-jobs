@@ -1,7 +1,7 @@
 import { ArticleMetadata, Post } from "@lens-protocol/client";
 import { JobAttributeName, JobStatus, JobStatusStyles } from "../utils/constants";
 
-export default function HirerJobsPageJobCard({job}: {job: Post}) {
+export default function HirerJobsPageJobCard({job, onClick}: {job: Post, onClick: (e:any)=>any}) {
     const {
         metadata,
       } = job;
@@ -18,6 +18,7 @@ export default function HirerJobsPageJobCard({job}: {job: Post}) {
     return (
         <div
             key={job.id}
+            onClick={onClick}
             className="bg-surface rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow transition hover:scale-[1.01] duration-200"
         >
             <div>

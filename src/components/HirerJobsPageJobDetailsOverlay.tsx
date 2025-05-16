@@ -9,7 +9,7 @@ interface Props {
     onUpdate: () => void;
 }
 
-export default function HirerJobDetails({
+export default function HirerJobsPageJobDetailsOverlay({
     job,
     onSelectApplicant,
     onDelete,
@@ -31,15 +31,15 @@ export default function HirerJobDetails({
 
     const fee = attributes?.find((attr) => attr.key === JobAttributeName.fee)?.value ?? 0;
     const feePerHour = attributes?.find((attr) => attr.key === JobAttributeName.feePerHour)?.value ?? "false";
-    const status = attributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? "Error";
+    const status = attributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? JobStatus.Sealed;
     const deadline = attributes?.find((attr) => attr.key === JobAttributeName.deadline)?.value ?? "Error";
-    const applicantsString = attributes?.find((attr) => attr.key === JobAttributeName.deadline)?.value ?? "";
+    const applicantsString = attributes?.find((attr) => attr.key === JobAttributeName.applicants)?.value ?? "Abba,Abdul,Abdul_AS";
     const applicants = applicantsString.split(",");
 
     const [selected, setSelected] = useState<string | null>(null);
 
     return (
-        <div className="bg-surface text-white p-6 rounded-2xl shadow-xl w-full max-w-4xl mx-auto space-y-6">
+        <div id="overlay-content" className="bg-surface text-white p-6 rounded-2xl shadow-xl w-full max-w-4xl mx-auto space-y-6">
             {/* Title and Status */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                 <div>

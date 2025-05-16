@@ -3,14 +3,7 @@ import { useEffect, useState } from 'react';
 import { fetchJobsByHirer } from '../utils/post';
 import { JobAttributeName, JobStatus } from '../utils/constants';
 import HirerJobsPageJobCard from './HirerJobsPageJobCard';
-
-// interface Job {
-//   id: string;
-//   title: string;
-//   reward: number;
-//   status: JobStatus;
-//   createdAt: string;
-// }
+import HirerJobsPageJobDetails from './HirerJobsPageJobDetails';
 
 enum Tabs {
   AllJobs = 'All Jobs',
@@ -97,8 +90,9 @@ export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) 
 
       {/* Job List */}
       <div className="space-y-4">
-        {jobs.map((job) => (
-          <HirerJobsPageJobCard job={job} />
+        {jobs.map((job, idx) => (
+          // <HirerJobsPageJobCard job={job} />
+          <HirerJobsPageJobDetails key={idx} job={job} />
         ))}
       </div>
 

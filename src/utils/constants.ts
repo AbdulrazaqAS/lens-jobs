@@ -21,6 +21,7 @@ export enum JobAttributeName {
     feePerHour = "feePerHour",
     deadline = "deadline",
     status = "status",
+    applicants = "applicants",
 }
 
 export const Tags: ReadonlyArray<string> = [
