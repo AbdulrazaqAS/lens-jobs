@@ -37,7 +37,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
     const jobStatus = jobAttributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? JobStatus.Sealed;
     const jobDeadline = jobAttributes?.find((attr) => attr.key === JobAttributeName.deadline)?.value ?? "Error";
 
-    const hasApplied = true;
+    const hasApplied = false;
 
     const [showApplyForm, setShowApplyForm] = useState(false);
     const [coverLetter, setCoverLetter] = useState('');
