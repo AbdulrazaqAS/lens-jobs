@@ -16,6 +16,7 @@ export default function FreelancerJobsPageJobDetails({
 }: Props) {
     const [isOpen, setIsOpen] = useState(false);
 
+    // Prevent body scroll when showing job details
     useEffect(()=>{
         if (isOpen){
             document.body.style.overflow = "hidden";
@@ -35,6 +36,7 @@ export default function FreelancerJobsPageJobDetails({
             {isOpen && (
                 // <div onClick={() => setIsOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 overflow-auto">
                 <div onClick={() => setIsOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                    {/* e.stopPropagation to stop the click event from being passed to the parent div which will close the details */}
                     <div onClick={(e)=>e.stopPropagation()} className="relative w-full max-w-4xl mx-auto my-10 bg-surface text-white rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
                         <FreelancerJobsPageJobDetailsOverlay job={job}/>
                     </div>
