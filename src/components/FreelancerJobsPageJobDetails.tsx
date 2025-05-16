@@ -16,6 +16,18 @@ export default function FreelancerJobsPageJobDetails({
 }: Props) {
     const [isOpen, setIsOpen] = useState(false);
 
+    useEffect(()=>{
+        if (isOpen){
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isOpen]);
+
     return (
         <div className="relative">
             <FreelancerJobsPageJobCard job={job} onClick={() => setIsOpen(true)}/>
