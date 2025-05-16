@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { Account, PageSize, PaginatedResultInfo, Post, SessionClient } from "@lens-protocol/client"
-import { fetchAccountRecommendedJobs, fetchJobsByFeed, fetchJobsByQuery, fetchJobsToExplore } from "../utils/post";
-import { client } from "../utils/client";
-import JobCard from "./JobCard";
+import { fetchJobsByFeed } from "../utils/post";
+import FreelancerJobsPageJobCard from "./FreelancerJobsPageJobCard";
 import { JobsTab, JobSearchCategories } from "../utils/constants";
 import JobSkeleton from "./JobSkeleton";
+import FreelancerJobsPageJobDetails from "./FreelancerJobsPageJobDetails";
 
 interface Profs {
     sessionClient?: SessionClient;
@@ -179,7 +179,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                 {loading ? (
                     Array.from({ length: jobsPerPage }).map((_, i) => <JobSkeleton key={i} />)
                 ) : currentPageJobs.length > 0 ? (
-                    currentPageJobs.map((job, i) => <JobCard key={i} job={job} />)
+                    currentPageJobs.map((job, i) => <FreelancerJobsPageJobDetails key={i} job={job} />)
                 ) : (
                     <p className="text-gray-500">No jobs found for this search.</p>
                 )}

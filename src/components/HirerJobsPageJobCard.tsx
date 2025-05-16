@@ -1,7 +1,12 @@
 import { ArticleMetadata, Post } from "@lens-protocol/client";
 import { JobAttributeName, JobStatus, JobStatusStyles } from "../utils/constants";
 
-export default function HirerJobsPageJobCard({job, onClick}: {job: Post, onClick: (e:any)=>any}) {
+interface Props {
+  job: Post;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+}
+
+export default function HirerJobsPageJobCard({job, onClick}: Props) {
     const {
         metadata,
       } = job;

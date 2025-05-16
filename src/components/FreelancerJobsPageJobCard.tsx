@@ -2,7 +2,14 @@ import { Bookmark } from 'lucide-react';
 import { JobAttributeName } from '../utils/constants';
 import { ArticleMetadata, Post } from '@lens-protocol/client';
 
-export default function JobCard({job}: {job: Post}) {
+import React from 'react';
+
+interface Props {
+  job: Post;
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+}
+
+export default function FreelancerJobsPageJobCard({job, onClick}: Props) {
   const {
     metadata,
     author
@@ -21,7 +28,7 @@ export default function JobCard({job}: {job: Post}) {
   const feePerHour = attributes?.find((attr) => attr.key === JobAttributeName.feePerHour)?.value ?? "false";
 
   return (
-    <div className="bg-surface text-white rounded-2xl p-6 shadow-md border border-slate-800 relative transition hover:scale-[1.01] duration-200">
+    <div onClick={onClick} className="bg-surface text-white rounded-2xl p-6 shadow-md border border-slate-800 relative transition hover:scale-[1.01] duration-200">
       <div className="absolute top-4 right-4 text-accent cursor-pointer hover:text-yellow-400">
         <Bookmark size={20} strokeWidth={2} />
       </div>

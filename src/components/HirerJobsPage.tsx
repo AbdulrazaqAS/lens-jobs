@@ -91,7 +91,6 @@ export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) 
       {/* Job List */}
       <div className="space-y-4">
         {jobs.map((job, idx) => (
-          // <HirerJobsPageJobCard job={job} />
           <HirerJobsPageJobDetails key={idx} job={job} />
         ))}
       </div>

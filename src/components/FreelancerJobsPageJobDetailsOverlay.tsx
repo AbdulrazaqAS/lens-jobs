@@ -10,9 +10,14 @@ const durations = [
     'Greater than 1 month',
 ];
 
-type status = 'applied' | 'not_applied';
+interface Props {
+    job: Post;
+    onDelete?: () => void;
+    onUpdate?: () => void;
+    onApply?: () => void;
+}
 
-export default function FreelancerJobDetailsOverlay({ job }: { job: Post }) {
+export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
     const {
         metadata,
         author
@@ -40,7 +45,7 @@ export default function FreelancerJobDetailsOverlay({ job }: { job: Post }) {
     const [freelancerPrice, setFreelancerPrice] = useState('');
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-surface text-white rounded-xl shadow-lg space-y-6">
+        <div id="overlay-content" className="max-w-4xl mx-auto p-6 bg-surface text-white rounded-xl shadow-lg space-y-6">
             {/* Job Title and Status */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                 <h2 className="text-2xl font-bold">{jobTitle}</h2>

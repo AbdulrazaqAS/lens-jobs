@@ -19,8 +19,8 @@ export default function HirerJobsPageJobDetails({
 	const [isOpen, setIsOpen] = useState(false);
 
 	const closeOnOutsideClick = (e: MouseEvent) => {
-		const modalContent = document.getElementById('overlay-content');
-		if (modalContent && !modalContent.contains(e.target as Node)) {
+		const modalContent = document.getElementById('overlay-content');  // Top-level element of HirerJobsPageJobDetailsOverlay has this ID
+		if (modalContent && !modalContent.contains(e.target as Node)) {  // If the click is outside the modal content
 			setIsOpen(false);
 		}
 	};
