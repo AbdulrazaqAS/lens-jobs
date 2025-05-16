@@ -14,6 +14,7 @@ export enum AccountAttributeName {
     twitter = "twitter",
     linkedin = "linkedin",
     accountMode = "accountMode",
+    totalSpent = "totalSpent"
 }
 
 export enum JobAttributeName {
