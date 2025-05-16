@@ -16,31 +16,16 @@ export default function FreelancerJobsPageJobDetails({
 }: Props) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const closeOnOutsideClick = (e: MouseEvent) => {
-        const modalContent = document.getElementById('overlay-content');  // Top-level element of FreelancerJobsPageJobDetailsOverlay has this ID
-        if (modalContent && !modalContent.contains(e.target as Node)) {  // If the click is outside the modal content
-            setIsOpen(false);
-        }
-    };
-
-    useEffect(() => {
-        if (isOpen) {
-            document.addEventListener('mousedown', closeOnOutsideClick);
-        } else {
-            document.removeEventListener('mousedown', closeOnOutsideClick);
-        }
-        return () => {
-            document.removeEventListener('mousedown', closeOnOutsideClick);
-        };
-    }, [isOpen]);
-
     return (
         <div className="relative">
             <FreelancerJobsPageJobCard job={job} onClick={() => setIsOpen(true)}/>
 
             {isOpen && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-                    <FreelancerJobsPageJobDetailsOverlay job={job}/>
+                // <div onClick={() => setIsOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 overflow-auto">
+                <div onClick={() => setIsOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div onClick={(e)=>e.stopPropagation()} className="relative w-full max-w-4xl mx-auto my-10 bg-surface text-white rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
+                        <FreelancerJobsPageJobDetailsOverlay job={job}/>
+                    </div>
                 </div>
             )}
         </div>
