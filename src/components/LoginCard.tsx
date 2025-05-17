@@ -23,17 +23,18 @@ export default function LoginCard({
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [usernameError, setUsernameError] = useState('');
+  const [nameError, setNameError] = useState('');
   const [picture, setPicture] = useState<File>();
   const [picturePath, setPicturePath] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  const checkUsername = async (value: string) => {
-    if (value.length < 5) {
+  const checkUsername = (value: string) => {
+    if (value.length < 5) {  // Lens protocol global namespace min
       setUsernameError("Username must be at least 5 characters long.");
       return;
     }
 
-    if (value.length > 26) {
+    if (value.length > 26) {  // Lens protocol global namespace max
       setUsernameError("Username must be at most 26 characters long.");
       return;
     }
@@ -49,6 +50,19 @@ export default function LoginCard({
     }
 
     setUsernameError("");
+  };
+
+  const checkName = (value: string) => {
+    if (!/^[a-z]/i.test(value))
+      setNameError("Name must start with a letter.");
+    else if (!/^[a-z ]+$/i.test(value))
+      setNameError("Only a-z and space is allowed");
+    else if (value.trim().length < 5)  // Arbitrary value
+      setNameError("Name must be at least 5 characters long.");
+    else if (value.length > 32)  // Arbitrary value
+      setNameError("Name must be at most 32 characters long.");
+    else
+      setNameError("");
   };
 
   const isUsernameAvailable = async (sessionClient: SessionClient) => {
@@ -99,15 +113,8 @@ export default function LoginCard({
       return;
     }
 
-    if (!name.trim()) {
-      alert("Name is required");
-      return;
-    }
-
-    if (!username.trim()) {
-      setUsernameError("Username is required");
-      return;
-    }
+    if (nameError) return;
+    if (usernameError) return;
 
     if (!picture) {
       alert("Profile picture is required");
@@ -188,9 +195,14 @@ export default function LoginCard({
               <input
                 type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  checkName(e.target.value);
+                }}
                 className="w-full px-3 py-2 rounded-md bg-background border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                required
               />
+              {nameError && <p className="text-danger text-xs mt-1">{nameError}</p>}
             </div>
 
             <div>
@@ -204,6 +216,7 @@ export default function LoginCard({
                 }}
                 className={`w-full px-3 py-2 rounded-md bg-background border ${usernameError ? 'border-danger' : 'border-gray-600'
                   } text-white focus:outline-none focus:ring-2 focus:ring-primary`}
+                required
               />
               {usernameError && <p className="text-danger text-xs mt-1">{usernameError}</p>}
             </div>
@@ -216,12 +229,13 @@ export default function LoginCard({
                 accept="image/*"
                 onChange={handleImageChange}
                 className="w-full text-sm text-gray-300 file:bg-primary file:border-none file:text-white file:px-4 file:py-2 file:rounded-md bg-background border border-gray-600 rounded-md"
+                required
               />
             </div>
 
             <button
               type="submit"
-              disabled={!!usernameError}
+              disabled={isCreating}
               className="w-full py-2 bg-secondary text-black font-semibold rounded-lg hover:bg-secondary/80 transition disabled:opacity-60"
             >
               {isCreating ? "Creating account..." : "Submit"}
