@@ -110,11 +110,6 @@ export default function LoginCard({
     return account(metadata);
   };
   
-  function handleLoginBtnClick() {
-    if (accountDetected) handleLogin();
-    else setShowSignupForm(true);
-  }
-  
  async function handleLogin() {
    try {
      setIsLoggingIn(true);
@@ -201,11 +196,17 @@ export default function LoginCard({
         {!showSignupForm ? (
           <div className="text-center space-y-4">
             <h1 className="text-2xl font-semibold text-white">Welcome to LensJobs</h1>
+            {accountDetected && <button
+              className="w-full py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/80 transition"
+              onClick={handleLogin}
+            >
+              {isLogginIn ? "Logging in..." : `Continue as ${currentAccount!.username!.localName}`}
+            </button>}
             <button
               className="w-full py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/80 transition"
-              onClick={handleLoginBtnClick}
+              onClick={() => setShowSignupForm(true)}
             >
-              {accountDetected ? `Continue as ${currentAccount!.username!.localName}` : isLogginIn ? "Logging in..." : "Create Account"}
+              Create Account
             </button>
           </div>
         ) : (
@@ -213,6 +214,7 @@ export default function LoginCard({
             className="space-y-4 text-white"
             onSubmit={submitForm}
           >
+            {/* TODO: Add a back button to the form to go back to the buttons*/}
             <img
               src={picturePath ?? "profile-placeholder.png"}
               alt="Preview"
