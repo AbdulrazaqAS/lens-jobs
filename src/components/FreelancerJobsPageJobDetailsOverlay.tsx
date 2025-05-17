@@ -107,12 +107,12 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
             )}
 
             {/* Apply Form */}
+            {/* TODO: Add back/cancel btn on small screen*/}
             {showApplyForm && (
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();
                         console.log({ coverLetter, duration, freelancerPrice });
-                        // Send application logic...
                     }}
                     className="space-y-4 mt-6 bg-background p-4 rounded-lg border border-primary"
                 >
