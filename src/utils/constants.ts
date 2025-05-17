@@ -59,9 +59,11 @@ export enum JobSearchCategories {
     Address = 'address',
 }
 
+// rename to FreelancerJobsTabs
 export enum JobsTab {
-    Recent = "recent",
-    ForYou = "for You",
+    Recent = "Recent Jobs",
+    ForYou = "Jobs For You",
+    Bookmark = "Bookmarked Jobs",
 }
 
 export enum JobStatus {

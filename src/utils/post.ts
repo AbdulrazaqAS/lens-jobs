@@ -1,5 +1,5 @@
-import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed, MainContentFocus, PageSize, Cursor } from "@lens-protocol/client";
-import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fetchFeed } from "@lens-protocol/client/actions";
+import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed, MainContentFocus, PageSize, Cursor, postId } from "@lens-protocol/client";
+import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fetchFeed, bookmarkPost, fetchPostBookmarks, undoBookmarkPost } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
 import { WalletClient } from "viem";
 import { client } from "./client";
@@ -204,4 +204,42 @@ export async function fetchJobsToExplore(anyClient: AnyClient = client) {
     }
 
     return result.value;
+}
+
+export async function bookmarkPostById({sessionClient, id}, {sessionClient:SessionClient, id:string}){
+    const result = await bookmarkPost(sessionClient, {
+        post: postId(id),
+    });
+
+    if (result.isErr()) {
+      throw result.error;
+    }
+}
+
+export async function fetchBookmarkedPosts(){
+    const result = await fetchPostBookmarks(client, {
+      filter: {
+        feeds: [
+          {
+            feed: evmAddress(FEED_ADDRESS),
+          },
+        ],
+      },
+    });
+
+    if (result.isErr()) {
+      throw result.error;
+    }
+
+    return result.value;
+}
+
+export async function removeBookmarkedPostById({sessionClient, id}, {sessionClient:SessionClient, id:string}){
+    const result = await undoBookmarkPost(sessionClient, {
+      post: postId(id),
+    });
+    
+    if (result.isErr()) {
+      throw result.error;
+    }
 }

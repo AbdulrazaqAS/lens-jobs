@@ -1,6 +1,8 @@
+import {useEffect, useState} from "react";
 import { Bookmark } from 'lucide-react';
 import { JobAttributeName } from '../utils/constants';
 import { ArticleMetadata, Post } from '@lens-protocol/client';
+import { bookmarkPostById, removeBookmarkedPostById } from "../utils/post";
 
 import React from 'react';
 
@@ -26,6 +28,25 @@ export default function FreelancerJobsPageJobCard({job, onClick}: Props) {
 
   const fee = attributes?.find((attr) => attr.key === JobAttributeName.fee)?.value ?? 0;
   const feePerHour = attributes?.find((attr) => attr.key === JobAttributeName.feePerHour)?.value ?? "false";
+  
+  const [isBookmarked, setIsBookmarked] = useState(true);
+  
+  async function handleBookmarking() {
+    try {
+      if (isBookmarked) await removeBookmarkedPostById(job.id);
+      else await bookmarkPostById(job.id);
+      
+      setIsBookmarked(!isBookmarked);  // TODO: check the server instead.
+    } catch (error) {
+      console.error("Error bookmarking job:", error);
+    }
+  }
+  
+  useEffect(()=> {
+    if (!sessionClient) return;
+      const isBookmarked = job.operations?.hasBookmarked ?? false;
+      setIsBookmarked(isBookmarked);  // TODO: Fill the icon if bookmarked
+  }, []);
 
   return (
     <div onClick={onClick} className="bg-surface text-white rounded-2xl p-6 shadow-md border border-slate-800 relative transition hover:scale-[1.01] duration-200">
