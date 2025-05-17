@@ -17,6 +17,7 @@ interface Props {
     onApply?: () => void;
 }
 
+// TODO: Add mins and maxs for inputs.
 export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
     const {
         metadata,
@@ -118,7 +119,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
                     <div>
                         <label className="block mb-1 text-sm">Cover Letter</label>
                         <textarea
-                            rows={4}
+                            rows={8}
                             value={coverLetter}
                             onChange={(e) => setCoverLetter(e.target.value)}
                             className="w-full p-2 bg-surface border border-gray-600 rounded-lg focus:outline-none"

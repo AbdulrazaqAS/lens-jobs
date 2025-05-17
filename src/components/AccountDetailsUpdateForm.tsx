@@ -28,6 +28,7 @@ interface Props {
   setCurrentAccount: Function;
 }
 
+// TODO: add mins and maxs for inputs
 export default function AccountDetailsUpdateForm({ currentAccount, setCurrentAccount, sessionClient }: Props) {
   const { data: walletClient } = useWalletClient();
 

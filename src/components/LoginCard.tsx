@@ -33,15 +33,21 @@ export default function LoginCard({
   const [picturePath, setPicturePath] = useState<string | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);  //??
   const accountDetected = currentAccount && currentAccount.username?.localName ? true : false;
+  
+  const minUsernameLength = 5;  // Lens protocol global namespace min
+  const maxUsernameLength = 12; // Arbitrary value
+  const minNameLength = 5;  // Arbitrary value
+  const maxNameLength = 20;  // Arbitrary value
 
+   // TODO: max lengths should be handled by the input tag. No need to show the errors. Mins too, but show error.
   const checkUsername = (value: string) => {
-    if (value.length < 5) {  // Lens protocol global namespace min
-      setUsernameError("Username must be at least 5 characters long.");
+    if (value.length < minUsernameLength) {
+      setUsernameError(`Username must be at least ${minUsernameLength} characters long.`);
       return;
     }
 
-    if (value.length > 26) {  // Lens protocol global namespace max
-      setUsernameError("Username must be at most 26 characters long.");
+    if (value.length > maxUsernameLength) {
+      setUsernameError(`Username must be at most ${maxUsernameLength} characters long.`);
       return;
     }
 
@@ -63,10 +69,10 @@ export default function LoginCard({
       setNameError("Name must start with a letter.");
     else if (!/^[a-z ]+$/i.test(value))
       setNameError("Only a-z and space is allowed");
-    else if (value.trim().length < 5)  // Arbitrary value
-      setNameError("Name must be at least 5 characters long.");
-    else if (value.length > 32)  // Arbitrary value
-      setNameError("Name must be at most 32 characters long.");
+    else if (value.trim().length < minNameLength)
+      setNameError(`Name must be at least ${minNameLength} characters long.`);
+    else if (value.length > maxNameLength)  // Arbitrary value
+      setNameError(`Name must be at most ${maxNameLength} characters long.`);
     else
       setNameError("");
   };
