@@ -9,6 +9,7 @@ type Props = {
   createOnboardingSessionClient: Function;
   setSessionClient: Function;
   setCurrentAccount: Function;
+  createAccountOwnerSessionClient: Function;
   currentAccount?: Account;
 };
 
@@ -21,6 +22,7 @@ export default function LoginCard({
   const { data: walletClient } = useWalletClient();
 
   const [isCreating, setIsCreating] = useState(false);
+  const [isLogginIn, setIsLoggingIn] = useState(false);
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -28,7 +30,8 @@ export default function LoginCard({
   const [nameError, setNameError] = useState('');
   const [picture, setPicture] = useState<File>();
   const [picturePath, setPicturePath] = useState<string | null>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);  //??
+  const accountDetected = currentAccount && currentAccount.username?.localName ? true : false;
 
   const checkUsername = (value: string) => {
     if (value.length < 5) {  // Lens protocol global namespace min
@@ -105,7 +108,30 @@ export default function LoginCard({
 
     return account(metadata);
   };
-
+  
+  function handleLoginBtnClick() {
+    if (accountDetected) handleLogin();
+    else setShowSignupForm(true);
+  }
+  
+ async function handleLogin() {
+   try {
+     setIsLoggingIn(true);
+      const sessionClient= await createAccountOwnerSessionClient();
+      if (!sessionClient){
+        throw new Error("Error creating account owner session client");
+      }
+      
+      setSessionClient(sessionClient);
+      console.log("Account owner session client created");
+    } catch(error) {
+      alert(error);
+      console.error(error);
+    } finally {
+      setIsLoggingIn(false);
+    }
+ }
+ 
   async function submitForm(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -176,9 +202,9 @@ export default function LoginCard({
             <h1 className="text-2xl font-semibold text-white">Welcome to LensJobs</h1>
             <button
               className="w-full py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/80 transition"
-              onClick={() => setShowSignupForm(true)}
+              onClick={handleLoginBtnClick}
             >
-              {currentAccount && currentAccount.username?.localName ? `Continue as ${currentAccount.username.localName}` : "Create Account"}
+              {accountDetected ? `Continue as ${currentAccount!.username!.localName}` : isLogginIn ? "Logging in..." : "Create Account"}
             </button>
           </div>
         ) : (

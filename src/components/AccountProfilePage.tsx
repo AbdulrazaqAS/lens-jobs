@@ -7,6 +7,7 @@ interface Props {
     sessionClient?: SessionClient;
     setCurrentAccount: Function;
     createOnboardingSessionClient: Function;
+    createAccountOwnerSessionClient: Function;
     setSessionClient: Function;
 }
 
@@ -25,6 +26,7 @@ export default function AccountProfilePage({
             ) : (
                 <LoginCard
                     createOnboardingSessionClient={createOnboardingSessionClient}
+                    createAccountOwnerSessionClient={createAccountOwnerSessionClient}
                     setCurrentAccount={setCurrentAccount}
                     setSessionClient={setSessionClient}
                     currentAccount={currentAccount}

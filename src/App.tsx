@@ -98,7 +98,7 @@ const App = () => {
 
     try {
       const user = await setupOnboardingSessionClient({ walletClient });
-      setSessionClient(user);
+      //setSessionClient(user);
       return user;
     } catch (error) {
       throw error;
@@ -110,7 +110,7 @@ const App = () => {
 
     try {
       const user = await setupAccountOwnerSessionClient({ walletClient, accountAddr: currentAccount!.address });
-      setSessionClient(user);
+      //setSessionClient(user);
       return user;
     } catch (error) {
       throw error;
@@ -268,6 +268,7 @@ const App = () => {
           setCurrentAccount={setCurrentAccount}
           sessionClient={sessionClient}
           createOnboardingSessionClient={createOnboardingSessionClient}
+          createAccountOwnerSessionClient={createAccountOwnerSessionClient}
           setSessionClient={setSessionClient}
         />
       }
