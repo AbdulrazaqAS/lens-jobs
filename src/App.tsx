@@ -262,8 +262,15 @@ const App = () => {
       )}
 
       {page === Navs.jobs && <JobsPage currentAccount={currentAccount} sessionClient={sessionClient} scrollToTop={scrollToTop} />}
-      {page === Navs.profile && sessionClient?.isSessionClient && <AccountProfilePage currentAccount={currentAccount!} setCurrentAccount={setCurrentAccount} sessionClient={sessionClient!}/>}
-      {/* TODO: If no authenticated session, show create account button in profile page */}
+      {page === Navs.profile &&
+        <AccountProfilePage
+          currentAccount={currentAccount}
+          setCurrentAccount={setCurrentAccount}
+          sessionClient={sessionClient}
+          createOnboardingSessionClient={createOnboardingSessionClient}
+          setSessionClient={setSessionClient}
+        />
+      }
 
     </div>
   );

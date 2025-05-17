@@ -11,8 +11,6 @@ import { WalletClient } from "viem";
 import { useWalletClient } from "wagmi";
 
 type Props = {
-  onboardingUserSessionClient?: SessionClient<Context>;
-  walletClient?: WalletClient;
   createOnboardingSessionClient: Function;
   setSessionClient: Function;
   setCurrentAccount: Function;

@@ -1,14 +1,34 @@
 import { Account, SessionClient } from '@lens-protocol/client';
 import AccountDetailsUpdateForm from './AccountDetailsUpdateForm';
+import LoginCard from './LoginCard';
 
 interface Props {
-    currentAccount: Account;
-    sessionClient: SessionClient;
+    currentAccount?: Account;
+    sessionClient?: SessionClient;
     setCurrentAccount: Function;
+    createOnboardingSessionClient: Function;
+    setSessionClient: Function;
 }
 
-export default function AccountProfilePage({currentAccount, setCurrentAccount, sessionClient}: Props ) {
+export default function AccountProfilePage({
+    currentAccount,
+    sessionClient,
+    createOnboardingSessionClient,
+    setCurrentAccount,
+    setSessionClient
+}: Props ) {
     return (
-        <AccountDetailsUpdateForm currentAccount={currentAccount} setCurrentAccount={setCurrentAccount} sessionClient={sessionClient}/>
+        <>
+            {sessionClient ? (
+                // If sessionClient is present, then there must be currentAccount
+                <AccountDetailsUpdateForm currentAccount={currentAccount!} setCurrentAccount={setCurrentAccount} sessionClient={sessionClient}/>
+            ) : (
+                <LoginCard
+                    createOnboardingSessionClient={createOnboardingSessionClient}
+                    setCurrentAccount={setCurrentAccount}
+                    setSessionClient={setSessionClient}
+                />
+            )}
+        </>
     );
 }

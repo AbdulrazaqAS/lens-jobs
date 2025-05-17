@@ -5,6 +5,7 @@ import {
   fetchAccount,
   switchAccount,
   fetchAccountsAvailable,
+  canCreateUsername,
 } from "@lens-protocol/client/actions";
 import { AccountMetadataDetails } from "@lens-protocol/metadata";
 import {
@@ -92,7 +93,7 @@ export async function updateAccountMetadata({
   return result.value;
 }
 
-export async function fetchAccountByTxHash(trxHash:string){
+export async function fetchAccountByTxHash(trxHash: string) {
   const result = await fetchAccount(client, {
     txHash: txHash(trxHash),
   });
@@ -105,7 +106,7 @@ export async function fetchAccountByTxHash(trxHash:string){
   return result.value;
 }
 
-export async function fetchAccountByAddress(addr:string){
+export async function fetchAccountByAddress(addr: string) {
   const result = await fetchAccount(client, {
     address: evmAddress(addr),
   });
@@ -118,7 +119,7 @@ export async function fetchAccountByAddress(addr:string){
   return result.value;
 }
 
-export async function fetchAccountByUsername(username:string){
+export async function fetchAccountByUsername(username: string) {
   const result = await fetchAccount(client, {
     username: {
       localName: username,
@@ -152,14 +153,33 @@ export async function switchToAccount({
 }
 
 export async function listAddressAccounts(address: string) {
-    const result = await fetchAccountsAvailable(client, {
-      managedBy: evmAddress(address),
-      includeOwned: true,
-    });
+  const result = await fetchAccountsAvailable(client, {
+    managedBy: evmAddress(address),
+    includeOwned: true,
+  });
 
-    if (result.isErr()) {
-      throw result.error;
-    }
-
-    return result.value;
+  if (result.isErr()) {
+    throw result.error;
   }
+
+  return result.value;
+}
+
+export async function checkUsernameAvailability({sessionClient, username}:{sessionClient: SessionClient, username: string}){
+  const result = await canCreateUsername(sessionClient, {
+    localName: username
+  });
+
+  if (result.isErr()){
+    throw result.error;
+  }
+
+  switch(result.value.__typename) {
+    case "UsernameTaken":
+      throw Error("Username taken");
+    case "NamespaceOperationValidationFailed":
+      throw new Error(`Can't create this username. Reason: ${result.value.reason}`);
+    case "NamespaceOperationValidationUnknown":
+      throw new Error("Can't create this username for unknown reason.");
+  }
+}
