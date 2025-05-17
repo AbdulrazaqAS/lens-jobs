@@ -178,7 +178,7 @@ export default function LoginCard({
               className="w-full py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/80 transition"
               onClick={() => setShowSignupForm(true)}
             >
-              {currentAccount && currentAccount.username?.localname ? `Continue as ${currentAccount.username.localname}` : "Create Account"}
+              {currentAccount && currentAccount.username?.localName ? `Continue as ${currentAccount.username.localName}` : "Create Account"}
             </button>
           </div>
         ) : (
