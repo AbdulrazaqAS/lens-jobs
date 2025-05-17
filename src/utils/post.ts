@@ -70,16 +70,18 @@ export async function fetchJobByTxHash(trxHash: string) {
 }
 
 export async function fetchJobsByFeed({
+    sessionClient,
     addr=FEED_ADDRESS,
     pageSize=PageSize.Ten,
     cursor=undefined,
 } : {
+    sessionClient?: SessionClient,
     addr?: string,
     pageSize?: PageSize,
     cursor?: any,
 } = {}) {
     try {
-        const result = await fetchPosts(client, {
+        const result = await fetchPosts(sessionClient ?? client, {
             filter: {
                 feeds: [
                     { feed: evmAddress(addr)}
@@ -206,7 +208,7 @@ export async function fetchJobsToExplore(anyClient: AnyClient = client) {
     return result.value;
 }
 
-export async function bookmarkPostById({sessionClient, id}, {sessionClient:SessionClient, id:string}){
+export async function bookmarkPostById({sessionClient, id}: {sessionClient:SessionClient, id:string}){
     const result = await bookmarkPost(sessionClient, {
         post: postId(id),
     });
@@ -216,8 +218,8 @@ export async function bookmarkPostById({sessionClient, id}, {sessionClient:Sessi
     }
 }
 
-export async function fetchBookmarkedPosts(){
-    const result = await fetchPostBookmarks(client, {
+export async function fetchBookmarkedPosts(sessionClient: SessionClient) {
+    const result = await fetchPostBookmarks(sessionClient, {
       filter: {
         feeds: [
           {
@@ -234,7 +236,7 @@ export async function fetchBookmarkedPosts(){
     return result.value;
 }
 
-export async function removeBookmarkedPostById({sessionClient, id}, {sessionClient:SessionClient, id:string}){
+export async function removeBookmarkedPostById({sessionClient, id}:{sessionClient:SessionClient, id:string}){
     const result = await undoBookmarkPost(sessionClient, {
       post: postId(id),
     });

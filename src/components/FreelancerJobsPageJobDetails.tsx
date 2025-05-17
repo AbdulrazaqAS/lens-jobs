@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Post } from '@lens-protocol/client';
+import { Post, SessionClient } from '@lens-protocol/client';
 import FreelancerJobsPageJobCard from './FreelancerJobsPageJobCard';
 import FreelancerJobsPageJobDetailsOverlay from './FreelancerJobsPageJobDetailsOverlay';
 
 interface Props {
     job: Post;
+    sessionClient?: SessionClient;
     onDelete?: () => void;
     onUpdate?: () => void;
 }
 
 export default function FreelancerJobsPageJobDetails({
     job,
+    sessionClient,
     onDelete,
     onUpdate,
 }: Props) {
@@ -31,7 +33,7 @@ export default function FreelancerJobsPageJobDetails({
 
     return (
         <div className="relative">
-            <FreelancerJobsPageJobCard job={job} onClick={() => setIsOpen(true)}/>
+            <FreelancerJobsPageJobCard job={job} onClick={() => setIsOpen(true)} sessionClient={sessionClient}/>
 
             {isOpen && (
                 // <div onClick={() => setIsOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 overflow-auto">

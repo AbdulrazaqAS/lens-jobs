@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Account, PageSize, PaginatedResultInfo, Post, SessionClient } from "@lens-protocol/client"
+import { Account, PageSize, PaginatedResultInfo, Post, SessionClient } from "@lens-protocol/client";
 import { fetchJobsByFeed, fetchBookmarkedPosts } from "../utils/post";
 import FreelancerJobsPageJobCard from "./FreelancerJobsPageJobCard";
 import { JobsTab, JobSearchCategories } from "../utils/constants";
@@ -16,8 +16,8 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     // const [feedJobs, setFeedJobs] = useState<ReadonlyArray<Post>>();
     const [feedJobs, setFeedJobs] = useState<Post[]>([]);
     const [bookmarkedJobs, setBookmarkedJobs] = useState<Post[]>([]);
-    const [trendingJobs, setTrendingJobs] = useState<ReadonlyArray<Post>>([]);
-    const [forYouJobs, setForYouJobs] = useState<ReadonlyArray<Post>>([]);
+    const [trendingJobs, setTrendingJobs] = useState<Post[]>([]);
+    const [forYouJobs, setForYouJobs] = useState<Post[]>([]);
     const [searchedJobs, setSearchedJobs] = useState<ReadonlyArray<Post>>([]);
 
     const [activeTab, setActiveTab] = useState<JobsTab>(JobsTab.Recent);
@@ -47,7 +47,13 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
 
     const gotoNextPage = () => {
         const lastPageHasNext = lastPageInfo?.next;
-        const pageAlreadyLoaded = pageJobsLoaded(currentPage + 1);
+
+        let jobsArray: Post[] = [];
+        if (activeTab === JobsTab.Recent) jobsArray = feedJobs;
+        else if (activeTab === JobsTab.Bookmark) jobsArray = bookmarkedJobs;
+        else if (activeTab === JobsTab.ForYou) jobsArray = forYouJobs;
+
+        const pageAlreadyLoaded = pageJobsLoaded(currentPage + 1, jobsArray);
 
         if (pageAlreadyLoaded || lastPageHasNext) {  // order is important here
             scrollToTop();
@@ -75,13 +81,13 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
         // TODO: break into smaller functions 
         async function fetchJobs() {
             let pageJobs: Post[];
-            let jobsArray: Post[];
-            
+            let jobsArray: Post[] = [];
+
             console.log("Page", currentPage);
             if (activeTab === JobsTab.Recent) jobsArray = feedJobs;
             else if (activeTab === JobsTab.Bookmark) jobsArray = bookmarkedJobs;
             else if (activeTab === JobsTab.ForYou) jobsArray = forYouJobs;
-            
+
             if (pageJobsLoaded(currentPage, jobsArray)) {
                 console.log("Current page already loaded", currentPage, "of", activeTab);
                 pageJobs = getPageJobsFromJobs(currentPage, jobsArray);
@@ -90,15 +96,15 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                     console.log("Current page not already loaded", currentPage, "of", activeTab);
                     const cursor = lastPageInfo?.next;
                     let result;
-                    
-                    if (activeTab === JobsTab.Recent){
-                        result = await fetchJobsByFeed({ cursor });
-                    } else if (activeTab === JobsTab.Bookmark){
-                        result = await fetchBookmarkedPosts();
-                    } else if (activeTab === JobsTab.ForYou){
+
+                    if (activeTab === JobsTab.Recent) {
+                        result = await fetchJobsByFeed({ sessionClient, cursor });
+                    } else if (activeTab === JobsTab.Bookmark && sessionClient) {
+                        result = await fetchBookmarkedPosts(sessionClient);
+                    } else if (activeTab === JobsTab.ForYou) {
                         // Implement it
                     }
-                    
+
                     if (!result) { // TODO: Test this error
                         throw new Error(`Error fetching page ${currentPage} jobs of ${activeTab}.`);
                     }
@@ -106,7 +112,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                     const { items, pageInfo } = result;
                     pageJobs = items as Post[];  // No repost in the app. We're sure of only posts
                     setLastPageInfo(pageInfo);
-                    
+
                     if (activeTab === JobsTab.Recent) setFeedJobs(prev => [...prev, ...pageJobs]);
                     else if (activeTab === JobsTab.Bookmark) setBookmarkedJobs(prev => [...prev, ...pageJobs]);
                     else if (activeTab === JobsTab.ForYou) setForYouJobs(prev => [...prev, ...pageJobs]);
@@ -119,7 +125,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
 
             setCurrentPageJobs(pageJobs);
             setLoading(false);
-            console.log("Page jobs:", pageJobs?.length, "first id", pageJobs && pageJobs[0].id.slice(-5));
+            console.log("Page jobs:", pageJobs?.length, "first id", pageJobs && pageJobs[0].id.slice(-5), pageJobs);
         }
 
         fetchJobs();
@@ -150,7 +156,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
         // })
 
     }, [currentPage]);
-    
+
     useEffect(() => {
         setCurrentPage(0);
         setLoading(true);
@@ -188,6 +194,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
 
             {/* Tabs */}
             <div className="flex space-x-4 mb-4 border-b border-slate-700">
+                {/* Don't ones that require sessionClient if there is no sessionClient */}
                 {Object.values(JobsTab).map((tab) => (
                     <button
                         key={tab}
@@ -207,7 +214,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                 {loading ? (
                     Array.from({ length: jobsPerPage }).map((_, i) => <JobSkeleton key={i} />)
                 ) : currentPageJobs.length > 0 ? (
-                    currentPageJobs.map((job, i) => <FreelancerJobsPageJobDetails key={i} job={job} />)
+                    currentPageJobs.map((job, i) => <FreelancerJobsPageJobDetails key={i} job={job} sessionClient={sessionClient} />)
                 ) : (
                     <p className="text-gray-500">No jobs found.</p>
                 )}
@@ -227,7 +234,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                     Page {currentPage + 1}
                 </span>
                 <button
-                    disabled={!pageJobsLoaded(currentPage + 1) || !lastPageInfo || !Boolean(lastPageInfo?.next)}
+                    disabled={!lastPageInfo || !Boolean(lastPageInfo?.next)}
                     className="px-4 py-2 rounded-lg bg-surface text-gray-300 hover:bg-slate-800 disabled:opacity-50"
                     onClick={gotoNextPage}
                 >

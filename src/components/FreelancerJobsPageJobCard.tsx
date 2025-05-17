@@ -1,7 +1,7 @@
-import {useEffect, useState} from "react";
-import { Bookmark } from 'lucide-react';
+import { useEffect, useState, MouseEvent } from "react";
+import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { JobAttributeName } from '../utils/constants';
-import { ArticleMetadata, Post } from '@lens-protocol/client';
+import { ArticleMetadata, Post, SessionClient } from '@lens-protocol/client';
 import { bookmarkPostById, removeBookmarkedPostById } from "../utils/post";
 
 import React from 'react';
@@ -9,49 +9,57 @@ import React from 'react';
 interface Props {
   job: Post;
   onClick: React.MouseEventHandler<HTMLDivElement>;
+  sessionClient?: SessionClient
 }
 
-export default function FreelancerJobsPageJobCard({job, onClick}: Props) {
+export default function FreelancerJobsPageJobCard({ sessionClient, job, onClick }: Props) {
   const {
     metadata,
     author
   } = job;
 
   const {
-      title,
-      attributes,
-      tags,
-      content,
-    } = metadata as ArticleMetadata;
+    title,
+    attributes,
+    tags,
+    content,
+  } = metadata as ArticleMetadata;
 
-  const {username} = author;
+  const { username } = author;
 
   const fee = attributes?.find((attr) => attr.key === JobAttributeName.fee)?.value ?? 0;
   const feePerHour = attributes?.find((attr) => attr.key === JobAttributeName.feePerHour)?.value ?? "false";
-  
-  const [isBookmarked, setIsBookmarked] = useState(true);
-  
-  async function handleBookmarking() {
+
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  async function handleBookmarking(e: MouseEvent<SVGSVGElement>) {
+    e.stopPropagation(); // Don't let the click reach the card
+
+    if (!sessionClient) return;
+
     try {
-      if (isBookmarked) await removeBookmarkedPostById(job.id);
-      else await bookmarkPostById(job.id);
-      
-      setIsBookmarked(!isBookmarked);  // TODO: check the server instead.
+      if (isBookmarked) await removeBookmarkedPostById({ sessionClient, id: job.id });
+      else await bookmarkPostById({ sessionClient, id: job.id });
+
+      setIsBookmarked(!isBookmarked);  // TODO: load value from the server instead.
     } catch (error) {
       console.error("Error bookmarking job:", error);
     }
   }
-  
-  useEffect(()=> {
+
+  useEffect(() => {
     if (!sessionClient) return;
-      const isBookmarked = job.operations?.hasBookmarked ?? false;
-      setIsBookmarked(isBookmarked);  // TODO: Fill the icon if bookmarked
+    const isBookmarked = job.operations?.hasBookmarked ?? false;
+    setIsBookmarked(isBookmarked);
   }, []);
 
   return (
     <div onClick={onClick} className="bg-surface text-white rounded-2xl p-6 shadow-md border border-slate-800 relative transition hover:scale-[1.01] duration-200">
       <div className="absolute top-4 right-4 text-accent cursor-pointer hover:text-yellow-400">
-        <Bookmark size={20} strokeWidth={2} />
+        {isBookmarked ?
+          <BookmarkCheck onClick={(e) => handleBookmarking(e)} size={20} strokeWidth={2} /> :
+          <Bookmark onClick={(e) => handleBookmarking(e)} size={20} strokeWidth={2} />
+        }
       </div>
 
       <h2 className="text-xl font-semibold text-primary mb-2">{title}</h2>
@@ -61,7 +69,7 @@ export default function FreelancerJobsPageJobCard({job, onClick}: Props) {
       </p>
 
       <div className="flex items-center justify-between text-sm mb-3">
-        <span className="text-secondary font-medium">💰 {fee}</span>
+        <span className="text-secondary font-medium">💰 {fee}{feePerHour === "true" && "/hr"}</span>
         <span className="text-gray-400">Posted by @{username?.localName ?? "User"}</span>
       </div>
 
