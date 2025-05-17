@@ -149,14 +149,14 @@ const App = () => {
     // the sessionClient has been updated from there, no need for it here.
     if (!currentAccount || !walletClient || sessionClient) return;
 
-    createAccountOwnerSessionClient().then((sessionClient) => {
+    /*createAccountOwnerSessionClient().then((sessionClient) => {
       if (!sessionClient) return;
       setSessionClient(sessionClient);
       console.log("Session client created", sessionClient);
     }).catch((error) => {
       console.error("Error creating session client", error);
       // TODO: Handle possible issues. Should cuurentAccount be cleared on error?
-    });
+    });*/
 
     // TODO: Logout session client when account changes
     return () => {

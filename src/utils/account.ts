@@ -176,7 +176,7 @@ export async function checkUsernameAvailability({sessionClient, username}:{sessi
 
   switch(result.value.__typename) {
     case "UsernameTaken":
-      throw Error("Username taken");
+      throw new Error("Username taken");
     case "NamespaceOperationValidationFailed":
       throw new Error(`Can't create this username. Reason: ${result.value.reason}`);
     case "NamespaceOperationValidationUnknown":
