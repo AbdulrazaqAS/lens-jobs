@@ -15,6 +15,7 @@ type Props = {
 
 export default function LoginCard({
   createOnboardingSessionClient,
+  createAccountOwnerSessionClient,
   setSessionClient,
   setCurrentAccount,
   currentAccount,

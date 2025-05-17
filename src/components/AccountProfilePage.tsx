@@ -15,6 +15,7 @@ export default function AccountProfilePage({
     currentAccount,
     sessionClient,
     createOnboardingSessionClient,
+    createAccountOwnerSessionClient,
     setCurrentAccount,
     setSessionClient
 }: Props ) {
