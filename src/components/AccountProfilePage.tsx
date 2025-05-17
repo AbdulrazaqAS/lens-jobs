@@ -27,6 +27,7 @@ export default function AccountProfilePage({
                     createOnboardingSessionClient={createOnboardingSessionClient}
                     setCurrentAccount={setCurrentAccount}
                     setSessionClient={setSessionClient}
+                    currentAccount={currentAccount}
                 />
             )}
         </>

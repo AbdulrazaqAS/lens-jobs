@@ -3,18 +3,20 @@ import { useState, useRef, ChangeEvent, FormEvent } from 'react';
 import { useWalletClient } from 'wagmi';
 import { checkUsernameAvailability, createNewAccountWithUsername, fetchAccountByTxHash, switchToAccount } from '../utils/account';
 import { uploadFile, uplaodMetadata } from '../utils/storage-client';
-import { SessionClient } from '@lens-protocol/client';
+import { SessionClient, Account } from '@lens-protocol/client';
 
 type Props = {
   createOnboardingSessionClient: Function;
   setSessionClient: Function;
   setCurrentAccount: Function;
+  currentAccount?: Account;
 };
 
 export default function LoginCard({
   createOnboardingSessionClient,
   setSessionClient,
   setCurrentAccount,
+  currentAccount,
 }: Props) {
   const { data: walletClient } = useWalletClient();
 
@@ -176,7 +178,7 @@ export default function LoginCard({
               className="w-full py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/80 transition"
               onClick={() => setShowSignupForm(true)}
             >
-              Create Account
+              {currentAccount && currentAccount.username?.localname ? `Continue as ${currentAccount.username.localname}` : "Create Account"}
             </button>
           </div>
         ) : (
