@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Account, PageSize, PaginatedResultInfo, Post, SessionClient } from "@lens-protocol/client";
-import { fetchJobsByFeed, fetchBookmarkedPosts } from "../utils/post";
+import { fetchJobsByFeed, fetchBookmarkedPosts, fetchJobsToExplore } from "../utils/post";
 import FreelancerJobsPageJobCard from "./FreelancerJobsPageJobCard";
 import { JobsTab, JobSearchCategories } from "../utils/constants";
 import JobSkeleton from "./JobSkeleton";
@@ -13,7 +13,6 @@ interface Profs {
 }
 
 export default function FreelancerJobsPage({ sessionClient, currentAccount, scrollToTop }: Profs) {
-    // const [feedJobs, setFeedJobs] = useState<ReadonlyArray<Post>>();
     const [feedJobs, setFeedJobs] = useState<Post[]>([]);
     const [bookmarkedJobs, setBookmarkedJobs] = useState<Post[]>([]);
     const [trendingJobs, setTrendingJobs] = useState<Post[]>([]);
@@ -33,7 +32,11 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
 
     const changeTab = (tab: JobsTab) => {
         setActiveTab(tab);
-        //setCurrentPage(0);
+        setCurrentPage(0);
+        setLoading(true);
+        scrollToTop();
+        setLastPageInfo(undefined);
+        console.log("Active tab:", tab);
     };
 
     const getPageJobsFromJobs = (page: number, jobs: Post[]) => {
@@ -73,6 +76,10 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     }
 
     const pageJobsLoaded = (page: number, jobs: Post[]) => {
+        // Note: Will return false if the page has loaded but has < jobsPerPage jobs
+        // Bug: Returning the above false will make the jobs array have duplicates,
+        // because it will refetch the page's jobs and add them. This will only be an
+        // issue in pagination.
         if (jobs.length > jobsPerPage * (currentPage + 1)) return true;
         else return false;
     }
@@ -80,7 +87,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     useEffect(() => {
         // TODO: break into smaller functions 
         async function fetchJobs() {
-            let pageJobs: Post[];
+            let pageJobs: Post[] = [];
             let jobsArray: Post[] = [];
 
             console.log("Page", currentPage);
@@ -101,8 +108,8 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                         result = await fetchJobsByFeed({ sessionClient, cursor });
                     } else if (activeTab === JobsTab.Bookmark && sessionClient) {
                         result = await fetchBookmarkedPosts(sessionClient);
-                    } else if (activeTab === JobsTab.ForYou) {
-                        // Implement it
+                    } else if (activeTab === JobsTab.ForYou && sessionClient) {
+                        result = await fetchJobsToExplore(sessionClient);
                     }
 
                     if (!result) { // TODO: Test this error
@@ -113,39 +120,25 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                     pageJobs = items as Post[];  // No repost in the app. We're sure of only posts
                     setLastPageInfo(pageInfo);
 
+                    // Bug: read pageJobsLoaded func
                     if (activeTab === JobsTab.Recent) setFeedJobs(prev => [...prev, ...pageJobs]);
                     else if (activeTab === JobsTab.Bookmark) setBookmarkedJobs(prev => [...prev, ...pageJobs]);
                     else if (activeTab === JobsTab.ForYou) setForYouJobs(prev => [...prev, ...pageJobs]);
                 } catch (error) {
-                    console.error(`Error fetching page jobs (Trying prev page ${currentPage - 1}):`, error);
-                    gotoPrevPage();
-                    return;
+                    console.error(`Error fetching page jobs:`, error);
                 }
             }
 
             setCurrentPageJobs(pageJobs);
-            setLoading(false);
-            console.log("Page jobs:", pageJobs?.length, "first id", pageJobs && pageJobs[0].id.slice(-5), pageJobs);
+
+            // Fake loading. Loads for 2s if no job is detected. 0.5 when detected.
+            if (pageJobs.length === 0) setTimeout(() => setLoading(false), 2000);
+            else setTimeout(() => setLoading(false), 500);
+
+            console.log("Page jobs:", pageJobs?.length, "first id", pageJobs);
         }
 
         fetchJobs();
-
-        // fetchJobsToExplore(sessionClient ?? client).then((paginated) => {
-        //     if (!paginated) return;
-        //     const jobs = paginated.items;
-        //     console.log("Trending jobs", jobs);
-        //     setTrendingJobs(jobs);
-        // })
-
-        // if (currentAccount) {
-        //     fetchAccountRecommendedJobs(currentAccount.address).then((paginated) => {
-        //         if (!paginated) return;
-        //         const jobs = paginated.items;
-        //         console.log("Trending jobs", jobs);
-        //         setForYouJobs(jobs);
-        //         // alert(posts);
-        //     })
-        // }
 
         // fetchJobsByQuery("smart solidity").then((paginated) => {
         //     if (!paginated) return;
@@ -155,14 +148,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
         //     setSearchedJobs(jobs);
         // })
 
-    }, [currentPage]);
-
-    useEffect(() => {
-        setCurrentPage(0);
-        setLoading(true);
-        scrollToTop();
-        setLastPageInfo(undefined);
-    }, [activeTab]);
+    }, [currentPage, activeTab]);
 
     return (
         <div className="w-full max-w-4xl mx-auto px-4 text-white">

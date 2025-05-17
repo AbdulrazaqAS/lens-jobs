@@ -189,7 +189,14 @@ export async function fetchAccountRecommendedJobs(addr: string) {
 }
 
 export async function fetchJobsToExplore(anyClient: AnyClient = client) {
-    const tags = Tags.map(tag => tag.toLowerCase());
+    let tags: string[] = [];
+
+    for (let i=0;i<10;i++){  // seems like 10 is the max. It doesn't like space in tags.
+        const randIdx = Math.floor(Math.random() * Tags.length);
+        tags.push(Tags[randIdx].toLowerCase());
+    }
+
+    // const tags = Tags.map(tag => tag.toLowerCase());
 
     const result = await fetchPostsToExplore(anyClient, {
         filter: {
