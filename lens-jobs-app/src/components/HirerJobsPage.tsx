@@ -2,7 +2,6 @@ import { Account, Post, SessionClient } from '@lens-protocol/client';
 import { useEffect, useState } from 'react';
 import { fetchJobsByHirer } from '../utils/post';
 import { JobAttributeName, JobStatus } from '../utils/constants';
-import HirerJobsPageJobCard from './HirerJobsPageJobCard';
 import HirerJobsPageJobDetails from './HirerJobsPageJobDetails';
 
 enum Tabs {
@@ -50,7 +49,7 @@ export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) 
   }
 
   useEffect(() => {
-      fetchJobsByHirer(currentAccount.address).then((paginated) => {
+      fetchJobsByHirer({addr: currentAccount.address, sessionClient}).then((paginated) => {
           if (!paginated) return;
           const jobs = paginated.items;
           const filteredJobs = jobs.filter((job) => job.__typename === "Post");  // only posts, removed reposts
