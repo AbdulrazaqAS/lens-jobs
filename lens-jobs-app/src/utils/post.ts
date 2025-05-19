@@ -17,13 +17,13 @@ export async function postJob({ sessionClient, walletClient, metadataUri }: { se
     const result = await post(sessionClient, {
         contentUri: uri(metadataUri),
         feed: evmAddress(FEED_ADDRESS),
-        // actions: [
-        //     {
-        //         unknown: {
-        //             address: evmAddress(JOB_APPLY_ACTION_ADDRESS),
-        //         },
-        //     },
-        // ],
+        actions: [
+            {
+                unknown: {
+                    address: evmAddress(JOB_APPLY_ACTION_ADDRESS),
+                },
+            },
+        ],
 
     }).andThen(handleOperationWith(walletClient));
 

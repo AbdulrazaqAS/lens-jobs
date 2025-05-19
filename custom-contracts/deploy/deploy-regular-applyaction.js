@@ -16,7 +16,7 @@ export default async function (hre) {
   // Load contract
   const artifact = await deployer.loadArtifact("JobPostApplyAction");
 
-  const actionHubAddress = addresses.testnetActionHub1;
+  const actionHubAddress = addresses.testnetActionHub0;
   const actionContract = await deployer.deploy(artifact, [actionHubAddress]);
 
   // Show the contract info.
