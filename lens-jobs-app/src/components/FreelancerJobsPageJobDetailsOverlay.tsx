@@ -1,6 +1,8 @@
-import { ArticleMetadata, Post } from '@lens-protocol/client';
-import { useState } from 'react';
+import { ArticleMetadata, Post, SessionClient } from '@lens-protocol/client';
+import { FormEvent, useState } from 'react';
 import { AccountAttributeName, JobAttributeName, JobStatus } from '../utils/constants';
+import { useWalletClient } from 'wagmi';
+import { applyForJob } from '../utils/post';
 
 const durations = [
     'Less than 1 day',
@@ -12,13 +14,11 @@ const durations = [
 
 interface Props {
     job: Post;
-    onDelete?: () => void;
-    onUpdate?: () => void;
-    onApply?: () => void;
+    sessionClient?: SessionClient;
 }
 
 // TODO: Add mins and maxs for inputs.
-export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
+export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient }: Props) {
     const {
         metadata,
         author
@@ -31,6 +31,8 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
         content: jobContent,
     } = metadata as ArticleMetadata;
 
+    const {data: walletClient} = useWalletClient();
+    
     const hirerTotalSpent = author.metadata?.attributes.find((attr) => attr.key === AccountAttributeName.totalSpent)?.value ?? 0;
 
     const hirerFee = jobAttributes?.find((attr) => attr.key === JobAttributeName.fee)?.value ?? 0;
@@ -44,6 +46,37 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
     const [coverLetter, setCoverLetter] = useState('');
     const [duration, setDuration] = useState('');
     const [freelancerPrice, setFreelancerPrice] = useState('');
+
+    async function handleApply(e: FormEvent){
+        e.preventDefault();
+
+        if (!sessionClient) {
+            console.error("No session client detected");
+            return;
+        }
+
+        if (!walletClient) {
+            console.error("Wallet not connected");
+            return;
+        }
+
+        try {
+            const txHash = await applyForJob({job, sessionClient, walletClient});
+            if (!txHash) throw new Error("Error deleting post");
+            
+            async function waitForApplyIndexing(){
+                const result = await sessionClient!.waitForTransaction(txHash!);
+                if (result.isErr()) throw result.error;
+                console.log("Job aplication successful. TxHash:", result.value);
+                // TODO: refresh application status
+            }
+
+            waitForApplyIndexing(); // No need to await
+
+        } catch (error) {
+            console.error("Error applying for job:", error);
+        }
+    }
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-surface text-white rounded-xl shadow-lg space-y-6">
@@ -97,7 +130,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
             </div>
 
             {/* Apply Button */}
-            {!showApplyForm && !hasApplied && (
+            {!showApplyForm && !hasApplied && sessionClient && (
                 <button
                     onClick={() => setShowApplyForm(true)}
                     className="mt-4 bg-primary hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg"
@@ -110,10 +143,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job }: Props) {
             {/* TODO: Add back/cancel btn on small screen*/}
             {showApplyForm && (
                 <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        console.log({ coverLetter, duration, freelancerPrice });
-                    }}
+                    onSubmit={handleApply}
                     className="space-y-4 mt-6 bg-background p-4 rounded-lg border border-primary"
                 >
                     <div>
