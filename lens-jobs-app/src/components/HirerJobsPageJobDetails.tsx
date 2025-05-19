@@ -1,20 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import HirerJobsPageJobCard from './HirerJobsPageJobCard';
-import { Post } from '@lens-protocol/client';
+import { Post, SessionClient } from '@lens-protocol/client';
 import HirerJobsPageJobDetailsOverlay from './HirerJobsPageJobDetailsOverlay';
 
 interface Props {
 	job: Post;
-	onSelectApplicant?: (applicant: string) => void;
-	onDelete?: () => void;
-	onUpdate?: () => void;
+	setRefetchJobsCounter: Function;
+	sessionClient: SessionClient;
 }
 
 export default function HirerJobsPageJobDetails({
 	job,
-	onSelectApplicant,
-	onDelete,
-	onUpdate,
+	setRefetchJobsCounter,
+	sessionClient
 }: Props) {
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -42,7 +40,7 @@ export default function HirerJobsPageJobDetails({
 
 			{isOpen && (
 				<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-					<HirerJobsPageJobDetailsOverlay job={job} onSelectApplicant={()=>{}} onDelete={()=>{}} onUpdate={()=>{}}/>
+					<HirerJobsPageJobDetailsOverlay job={job} setIsOpen={setIsOpen} setRefetchJobsCounter={setRefetchJobsCounter} sessionClient={sessionClient}/>
 				</div>
 			)}
 		</div>

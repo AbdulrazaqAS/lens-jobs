@@ -1,19 +1,21 @@
-import { ArticleMetadata, Post } from '@lens-protocol/client';
+import { ArticleMetadata, Post, SessionClient } from '@lens-protocol/client';
 import { useState } from 'react';
 import { JobAttributeName, JobStatus, JobStatusStyles } from '../utils/constants';
+import { deleteJob } from '../utils/post';
+import { useWalletClient } from 'wagmi';
 
 interface Props {
     job: Post;
-    onSelectApplicant: (applicant: string) => void;
-    onDelete: () => void;
-    onUpdate: () => void;
+    sessionClient: SessionClient;
+    setRefetchJobsCounter: Function;
+    setIsOpen: Function;
 }
 
 export default function HirerJobsPageJobDetailsOverlay({
     job,
-    onSelectApplicant,
-    onDelete,
-    onUpdate,
+    sessionClient,
+    setRefetchJobsCounter,
+    setIsOpen
 }: Props) {
     const {
         metadata,
@@ -29,6 +31,9 @@ export default function HirerJobsPageJobDetailsOverlay({
 
     const { username } = author;
 
+    const {data: walletClient} = useWalletClient();
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const fee = attributes?.find((attr) => attr.key === JobAttributeName.fee)?.value ?? 0;
     const feePerHour = attributes?.find((attr) => attr.key === JobAttributeName.feePerHour)?.value ?? "false";
     const status = attributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? JobStatus.Sealed;
@@ -37,6 +42,33 @@ export default function HirerJobsPageJobDetailsOverlay({
     const applicants = applicantsString.split(",");
 
     const [selected, setSelected] = useState<string | null>(null);
+
+    async function handleDeleteJob(){
+        if (!walletClient) {
+            console.error("Wallet not connected");
+            return;
+        }
+
+        try {
+            setIsDeleting(true);
+            const txHash = await deleteJob({sessionClient, walletClient, job});
+            if (!txHash) throw new Error("Error deleting post");
+            setRefetchJobsCounter((prev: number) => prev + 1);  // refetch hirer's jobs
+            setIsOpen(false);  // Close job details
+
+            async function waitForDeleteIndexing(){
+                const result = await sessionClient.waitForTransaction(txHash!);
+                if (result.isErr()) throw result.error;
+                console.log("Job deleted successfully. TxHash:", result.value);
+            }
+
+            waitForDeleteIndexing(); // No need to await
+        } catch (error) {
+            console.error("Deleting job error:", error);
+        } finally {
+            setIsDeleting(false);
+        }
+    }
 
     return (
         <div id="overlay-content" className="bg-surface text-white p-6 rounded-2xl shadow-xl w-full max-w-4xl mx-auto space-y-6">
@@ -50,16 +82,16 @@ export default function HirerJobsPageJobDetailsOverlay({
                 </div>
                 <div className="flex gap-2">
                     <button
-                        onClick={onUpdate}
+                        onClick={() => {}}
                         className="bg-primary hover:opacity-90 text-white px-4 py-2 rounded-lg"
                     >
                         Update
                     </button>
                     <button
-                        onClick={onDelete}
+                        onClick={handleDeleteJob}
                         className="bg-danger hover:opacity-90 text-white px-4 py-2 rounded-lg"
                     >
-                        Delete
+                        {isDeleting ? "Deleting..." : "Delete"}
                     </button>
                 </div>
             </div>
@@ -106,7 +138,6 @@ export default function HirerJobsPageJobDetailsOverlay({
                                 <button
                                     onClick={() => {
                                         setSelected(applicant);
-                                        onSelectApplicant(applicant);
                                     }}
                                     className="bg-secondary text-black text-sm px-4 py-1 rounded hover:opacity-90"
                                 >

@@ -98,7 +98,7 @@ export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) 
           isLoading ? (
             Array.from({ length: JobsPerPage }).map((_, i) => <JobSkeleton key={i} />)
           ) : jobs.length > 0 ? (
-            jobs.map((job, i) => <HirerJobsPageJobDetails key={i} job={job} />)
+            jobs.map((job, i) => <HirerJobsPageJobDetails key={i} job={job} sessionClient={sessionClient} setRefetchJobsCounter={setRefetchJobsCounter}/>)
           ) : (
             <p className="text-gray-500">No jobs found.</p>
           )
