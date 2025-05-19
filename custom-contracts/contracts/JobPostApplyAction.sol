@@ -11,13 +11,13 @@ import {IFeed} from "./core/interfaces/IFeed.sol";
 
 contract JobPostApplyAction is BasePostAction {
     // feed => postId => freelancer => hasVoted
-    mapping(address => mapping(uint256 => mapping(address => bool))) public hasApplied;
+    mapping(address feed => mapping(uint256 postId => mapping(address freelancer => bool))) public hasApplied;
 
     // feed => postId => applications
-    mapping(address => mapping(uint256 => uint256)) public applications;
+    mapping(address feed => mapping(uint256 postId => uint256)) public applications;
 
     // feed => postId => freelancer => applicationFormUri
-    mapping(address => mapping(uint256 => mapping(address => bytes))) public applicationFormUris;
+    mapping(address feed => mapping(uint256 postId => mapping(address freelancer => bytes))) public applicationFormUris;
 
     event JobApplied(address indexed freelancer, address indexed feed, uint256 indexed postId);
     event JobApplicationRevoked(address indexed freelancer, address indexed feed, uint256 indexed postId);
@@ -56,11 +56,9 @@ contract JobPostApplyAction is BasePostAction {
           if (params[i].key == appFormUriHash) {
               appFormUriFound = true;
               appFormUri = params[i].value;
-              continue;
           } else if (params[i].key == revokeHash) {
               revokeFound = true;
               revoke = abi.decode(params[i].value, (bool));
-              continue;
           }
         }
 
@@ -76,10 +74,12 @@ contract JobPostApplyAction is BasePostAction {
         if (!revoke) applicationFormUris[feed][postId][originalMsgSender] = appFormUri;
         else delete applicationFormUris[feed][postId][originalMsgSender];
 
-        if (!callerHasApplied) {  // An application
+        if (!callerHasApplied) {
             emit JobApplied(originalMsgSender, feed, postId);
+            applications[feed][postId]++;
         } else {
             emit JobApplicationRevoked(originalMsgSender, feed, postId);
+            applications[feed][postId]--;
         }
 
         return "";

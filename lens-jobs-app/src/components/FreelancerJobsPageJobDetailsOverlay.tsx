@@ -66,6 +66,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient
             const appFormMetadata = {coverLetter, price: freelancerPrice, duration};
             const appFormMetadataUri = (await uplaodMetadata(appFormMetadata)).slice(7);
             console.log("Length", appFormMetadataUri.length, appFormMetadataUri);
+            
             const txHash = await applyForJob({job,revokeApplication: false, appFormUri: appFormMetadataUri, sessionClient, walletClient});
             if (!txHash) throw new Error("Error deleting post");
             
