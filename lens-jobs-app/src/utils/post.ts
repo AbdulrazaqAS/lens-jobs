@@ -3,7 +3,7 @@ import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fet
 import { handleOperationWith } from "@lens-protocol/client/viem";
 import { WalletClient } from "viem";
 import { client } from "./client";
-import { Tags } from "./constants";
+import { PaginatedPageSize, Tags } from "./constants";
 
 const FEED_ADDRESS = import.meta.env.VITE_APP_FEED_ADDRESS;
 const JOB_APPLY_ACTION_ADDRESS = import.meta.env.VITE_JOB_APPLY_ACTION_ADDRESS;
@@ -17,13 +17,13 @@ export async function postJob({ sessionClient, walletClient, metadataUri }: { se
     const result = await post(sessionClient, {
         contentUri: uri(metadataUri),
         feed: evmAddress(FEED_ADDRESS),
-        actions: [
-            {
-                unknown: {
-                    address: evmAddress(JOB_APPLY_ACTION_ADDRESS),
-                },
-            },
-        ],
+        // actions: [
+        //     {
+        //         unknown: {
+        //             address: evmAddress(JOB_APPLY_ACTION_ADDRESS),
+        //         },
+        //     },
+        // ],
 
     }).andThen(handleOperationWith(walletClient));
 
@@ -72,7 +72,7 @@ export async function fetchJobByTxHash(trxHash: string) {
 export async function fetchJobsByFeed({
     sessionClient,
     addr = FEED_ADDRESS,
-    pageSize = PageSize.Ten,
+    pageSize = PaginatedPageSize,
     cursor = undefined,
 }: {
     sessionClient?: SessionClient,

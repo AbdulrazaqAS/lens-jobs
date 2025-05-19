@@ -141,7 +141,7 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-surface p-6 rounded-lg shadow-lg max-w-xl mx-auto space-y-6 border border-primary"
+      className="bg-surface p-6 rounded-lg shadow-lg max-w-3xl mx-auto space-y-6 border border-primary"
     >
       <h2 className="text-2xl font-bold text-primary">Post a New Job</h2>
 
@@ -233,7 +233,7 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
           <button
             type="button"
             onClick={handleAddNewTag}
-            className="px-4 py-2 bg-secondary text-black font-medium rounded hover:opacity-90"
+            className="px-4 py-2 bg-secondary text-black font-medium rounded hover:opacity-80 hover:cursor-pointer"
           >
             Add Tag
           </button>
@@ -243,7 +243,7 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-3 bg-primary text-white font-semibold rounded hover:bg-opacity-90"
+        className="w-full py-3 bg-primary text-white font-semibold rounded hover:opacity-80 hover:cursor-pointer"
       >
         {isLoading ? "Posting..." : "Post Job"}
       </button>

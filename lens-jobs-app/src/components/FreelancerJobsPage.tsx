@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
 import { Account, PageSize, PaginatedResultInfo, Post, SessionClient } from "@lens-protocol/client";
 import { fetchJobsByFeed, fetchBookmarkedPosts, fetchJobsToExplore } from "../utils/post";
-import FreelancerJobsPageJobCard from "./FreelancerJobsPageJobCard";
-import { JobsTab, JobSearchCategories } from "../utils/constants";
+import { JobsTab, JobSearchCategories, JobsPerPage } from "../utils/constants";
 import JobSkeleton from "./JobSkeleton";
 import FreelancerJobsPageJobDetails from "./FreelancerJobsPageJobDetails";
 
@@ -27,8 +26,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
 
-    const pageSize = PageSize.Ten;
-    const jobsPerPage = pageSize === PageSize.Ten ? 10 : 50;
+    
 
     const changeTab = (tab: JobsTab) => {
         setActiveTab(tab);
@@ -41,8 +39,8 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
 
     const getPageJobsFromJobs = (page: number, jobs: Post[]) => {
         const pageJobs = jobs.slice(
-            page * jobsPerPage,
-            (page + 1) * jobsPerPage
+            page * JobsPerPage,
+            (page + 1) * JobsPerPage
         );
 
         return pageJobs
@@ -80,7 +78,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
         // Bug: Returning the above false will make the jobs array have duplicates,
         // because it will refetch the page's jobs and add them. This will only be an
         // issue in pagination.
-        if (jobs.length > jobsPerPage * (currentPage + 1)) return true;
+        if (jobs.length > JobsPerPage * (currentPage + 1)) return true;
         else return false;
     }
 
@@ -198,7 +196,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
             {/* Jobs Feed */}
             <div className="grid gap-6">
                 {loading ? (
-                    Array.from({ length: jobsPerPage }).map((_, i) => <JobSkeleton key={i} />)
+                    Array.from({ length: JobsPerPage }).map((_, i) => <JobSkeleton key={i} />)
                 ) : currentPageJobs.length > 0 ? (
                     currentPageJobs.map((job, i) => <FreelancerJobsPageJobDetails key={i} job={job} sessionClient={sessionClient} />)
                 ) : (

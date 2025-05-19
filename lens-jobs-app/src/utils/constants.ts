@@ -1,3 +1,8 @@
+import { PageSize } from "@lens-protocol/client";
+
+export const PaginatedPageSize = PageSize.Ten;
+export const JobsPerPage = PaginatedPageSize === PageSize.Ten ? 10 : 50;
+
 export enum Navs {
     jobs = "jobs",
     profile = "profile",

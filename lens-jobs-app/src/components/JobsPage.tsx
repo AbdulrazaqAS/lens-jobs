@@ -14,7 +14,12 @@ export default function JobsPage({ sessionClient, currentAccount, scrollToTop }:
         .find(attr_ => attr_.key === AccountAttributeName.accountMode)?.value
 
     let accountMode: AccountModes = AccountModes.Freelancer;
-    if (accountModeString) accountMode = parseInt(accountModeString) as AccountModes;
+
+    // Change to the loaded currentAccount mode only if there is a sessionClient
+    // Won't show hirer page if currentAccount is loaded, but no sessionClient.
+    if (sessionClient && accountModeString){
+        accountMode = parseInt(accountModeString) as AccountModes;
+    }
 
     return (
         <div>
