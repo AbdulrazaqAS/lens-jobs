@@ -1,9 +1,13 @@
-import { ArticleMetadata, Post, SessionClient } from '@lens-protocol/client';
-import { FormEvent, useState } from 'react';
+import { Account, ArticleMetadata, Post, SessionClient } from '@lens-protocol/client';
+import { FormEvent, useEffect, useState } from 'react';
 import { AccountAttributeName, JobAttributeName, JobStatus } from '../utils/constants';
-import { useWalletClient } from 'wagmi';
+import { useReadContract, useWalletClient } from 'wagmi';
 import { applyForJob } from '../utils/post';
 import { uplaodMetadata } from '../utils/storage-client';
+import JobPostApplyActionABI from '../assets/jobPostApplyActionABI.json';
+
+const JOB_POST_APPLY_ACTION_ADDRESS = import.meta.env.VITE_JOB_APPLY_ACTION_ADDRESS;
+const FEED_ADDRESS = import.meta.env.VITE_APP_FEED_ADDRESS;
 
 const durations = [
     'Less than 1 day',
@@ -16,10 +20,11 @@ const durations = [
 interface Props {
     job: Post;
     sessionClient?: SessionClient;
+    currentAccount?: Account;
 }
 
 // TODO: Add mins and maxs for inputs.
-export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient }: Props) {
+export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccount, sessionClient }: Props) {
     const {
         metadata,
         author
@@ -33,6 +38,16 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient
     } = metadata as ArticleMetadata;
 
     const {data: walletClient} = useWalletClient();
+    const {
+        data: hasAppliedData,
+        isLoading: isLoadingHasApplied,
+        error: hasAppliedError
+    } = useReadContract({
+        abi:JobPostApplyActionABI,
+        address: JOB_POST_APPLY_ACTION_ADDRESS,
+        functionName: "hasApplied",
+        args: [FEED_ADDRESS, job.id, currentAccount?.address ?? ""],
+    });
     
     const hirerTotalSpent = author.metadata?.attributes.find((attr) => attr.key === AccountAttributeName.totalSpent)?.value ?? 0;
 
@@ -47,6 +62,11 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient
     const [coverLetter, setCoverLetter] = useState('');
     const [duration, setDuration] = useState('');
     const [freelancerPrice, setFreelancerPrice] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        console.log({hasAppliedData, isLoadingHasApplied, hasAppliedError});
+    }, [hasAppliedData, isLoadingHasApplied, hasAppliedError])
 
     async function handleApply(e: FormEvent){
         e.preventDefault();
@@ -62,6 +82,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient
         }
 
         try {
+            setIsSubmitting(true);
             // Get application form metadata
             const appFormMetadata = {coverLetter, price: freelancerPrice, duration};
             const appFormMetadataUri = (await uplaodMetadata(appFormMetadata)).slice(7);
@@ -86,6 +107,8 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient
 
         } catch (error) {
             console.error("Error applying for job:", error);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -197,9 +220,10 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient
 
                     <button
                         type="submit"
-                        className="w-full bg-secondary hover:bg-green-400 text-black font-semibold px-4 py-2 rounded-lg"
+                        disabled={isSubmitting}
+                        className="w-full bg-secondary hover:bg-green-400 disabled:cursor-not-allowed text-black font-semibold px-4 py-2 rounded-lg"
                     >
-                        Submit
+                        {isSubmitting ? "Submitting..." : "Submit"}
                     </button>
                 </form>
             )}

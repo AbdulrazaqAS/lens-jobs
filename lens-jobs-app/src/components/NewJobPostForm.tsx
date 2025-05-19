@@ -102,6 +102,7 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       const metadataUri = await uplaodMetadata(metadata);
       const txHash = await postJob({ sessionClient, walletClient, metadataUri });
       console.log("Post txHash", txHash);
+      // TODO: Delete metadata if user can proceed with posting
 
       async function updateHirerJobsOnMined(){
         const result = await sessionClient.waitForTransaction(txHash);
@@ -243,7 +244,7 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-3 bg-primary text-white font-semibold rounded hover:opacity-80 hover:cursor-pointer"
+        className="w-full py-3 bg-primary text-white font-semibold rounded hover:opacity-80 disabled:cursor-not-allowed hover:cursor-pointer"
       >
         {isLoading ? "Posting..." : "Post Job"}
       </button>
