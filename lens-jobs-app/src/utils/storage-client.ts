@@ -12,7 +12,7 @@ export async function uploadFile(file: File) {
     return uri;
 }
 
-export async function uplaodMetadata(metadata: AccountMetadata | ArticleMetadata) {
+export async function uplaodMetadata(metadata: AccountMetadata | ArticleMetadata | object) {
     const { uri } = await storageClient.uploadAsJson(metadata, {
         acl: immutable(chains.testnet.id),
     });

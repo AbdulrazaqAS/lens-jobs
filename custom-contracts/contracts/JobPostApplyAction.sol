@@ -17,7 +17,7 @@ contract JobPostApplyAction is BasePostAction {
     mapping(address => mapping(uint256 => uint256)) public applications;
 
     // feed => postId => freelancer => applicationFormUri
-    mapping(address => mapping(uint256 => mapping(address => bytes32))) public applicationFormUris;
+    mapping(address => mapping(uint256 => mapping(address => bytes))) public applicationFormUris;
 
     event JobApplied(address indexed freelancer, address indexed feed, uint256 indexed postId);
     event JobApplicationRevoked(address indexed freelancer, address indexed feed, uint256 indexed postId);
@@ -44,11 +44,9 @@ contract JobPostApplyAction is BasePostAction {
         uint256 postId,
         KeyValue[] calldata params
     ) internal override returns (bytes memory) {
-        bool callerHasApplied = hasApplied[feed][postId][originalMsgSender];
-
         bool appFormUriFound;
         bool revokeFound;
-        bytes32 appFormUri;
+        bytes memory appFormUri;
         bool revoke;
 
         bytes32 appFormUriHash = keccak256("lens.param.appFormUri");
@@ -57,7 +55,7 @@ contract JobPostApplyAction is BasePostAction {
         for (uint256 i = 0; i < params.length; i++) {
           if (params[i].key == appFormUriHash) {
               appFormUriFound = true;
-              appFormUri = bytes32(params[i].value);
+              appFormUri = params[i].value;
               continue;
           } else if (params[i].key == revokeHash) {
               revokeFound = true;
@@ -66,7 +64,11 @@ contract JobPostApplyAction is BasePostAction {
           }
         }
 
-        require(revoke && !callerHasApplied, "Already applied");
+        require(revokeFound, "Revoke parameter not found");
+        require(appFormUriFound, "Application form uri parameter missing");
+        
+        bool callerHasApplied = hasApplied[feed][postId][originalMsgSender];
+        require(!revoke && !callerHasApplied, "Already applied");
         require(!revoke && appFormUriFound, "Application form uri missing");
         
         hasApplied[feed][postId][originalMsgSender] = !callerHasApplied;

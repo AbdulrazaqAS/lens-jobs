@@ -1,9 +1,10 @@
-import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed, MainContentFocus, PageSize, postId, Post } from "@lens-protocol/client";
+import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed, MainContentFocus, PageSize, postId, Post, blockchainData } from "@lens-protocol/client";
 import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fetchFeed, bookmarkPost, fetchPostBookmarks, undoBookmarkPost, executePostAction, fetchWhoExecutedActionOnPost, deletePost } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
-import { WalletClient } from "viem";
+import { keccak256, toBytes, toHex, WalletClient } from "viem";
 import { client } from "./client";
 import { PaginatedPageSize, Tags } from "./constants";
+import { encodeValue } from "./helpers";
 
 const FEED_ADDRESS = import.meta.env.VITE_APP_FEED_ADDRESS;
 const JOB_APPLY_ACTION_ADDRESS = import.meta.env.VITE_JOB_APPLY_ACTION_ADDRESS;
@@ -153,7 +154,7 @@ export async function fetchJobsByQuery(query: string) {
     return result.value;
 }
 
-export async function fetchJobsByHirer({addr, sessionClient}:{addr: string, sessionClient?: SessionClient}) {
+export async function fetchJobsByHirer({ addr, sessionClient }: { addr: string, sessionClient?: SessionClient }) {
     const result = await fetchPosts(sessionClient ?? client, {
         filter: {
             feeds: [
@@ -260,7 +261,19 @@ function jobHasApplyAction(job: Post) {
     return false;
 }
 
-export async function applyForJob({ job, sessionClient, walletClient }: { job: Post, sessionClient: SessionClient, walletClient: WalletClient }) {
+export async function applyForJob({
+    job,
+    revokeApplication,
+    appFormUri,  // Job application form uri
+    sessionClient,
+    walletClient
+}: {
+    job: Post,
+    revokeApplication: boolean,
+    appFormUri: string,
+    sessionClient: SessionClient,
+    walletClient: WalletClient
+}) {
     if (!jobHasApplyAction(job)) {
         throw new Error("Job post has no apply action");
     }
@@ -270,6 +283,16 @@ export async function applyForJob({ job, sessionClient, walletClient }: { job: P
         action: {
             unknown: {
                 address: evmAddress(JOB_APPLY_ACTION_ADDRESS),
+                params: [
+                    {
+                        key: blockchainData(keccak256(toBytes("lens.param.appFormUri"))),
+                        data: blockchainData(encodeValue(appFormUri, "bytes appFormUri")),
+                    },
+                    {
+                        key: blockchainData(keccak256(toBytes("lens.param.revoke"))),
+                        data: blockchainData(encodeValue(revokeApplication, "bool revoke")),
+                    }
+                ]
             },
         },
     }).andThen(handleOperationWith(walletClient));

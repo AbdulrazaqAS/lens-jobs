@@ -130,40 +130,10 @@ const App = () => {
     } else if (account.isDisconnected){
       setCurrentAccount(undefined);
       console.log("Current account set to undefined");
-      // No need to logout authenticated session from here
+      logOutAuthenticatedSession();
+      setSessionClient(undefined);
     }
   }, [account.status]);
-
-  useEffect(() => {
-    // console.log({
-    //   IsConnected: account.isConnected,
-    //   AcctStatus: account.status,
-    //   HasWalletClient: Boolean(walletClient),
-    //   HasSessionClient: Boolean(sessionClient),
-    //   HasCurrentAccount: Boolean(currentAccount),
-    // });
-
-    // Included "sessionClient" to return if session client is already set.
-    // Particularly useful after creating a new account which will update
-    // currentAccount which will cause this useEffect to rerun. Since the
-    // the sessionClient has been updated from there, no need for it here.
-    if (!currentAccount || !walletClient || sessionClient) return;
-
-    /*createAccountOwnerSessionClient().then((sessionClient) => {
-      if (!sessionClient) return;
-      setSessionClient(sessionClient);
-      console.log("Session client created", sessionClient);
-    }).catch((error) => {
-      console.error("Error creating session client", error);
-      // TODO: Handle possible issues. Should cuurentAccount be cleared on error?
-    });*/
-
-    // TODO: Logout session client when account changes
-    return () => {
-      //logOutAuthenticatedSession();
-      //setSessionClient(undefined);
-    };
-  }, [currentAccount, walletClient]);
 
   useEffect(() => {
     fetchApplicationByTxHash(client)

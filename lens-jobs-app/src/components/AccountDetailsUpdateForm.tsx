@@ -1,5 +1,5 @@
 import { useState, FormEvent, ChangeEvent, useEffect } from "react";
-import { account, MetadataAttribute, MetadataAttributeType } from "@lens-protocol/metadata";
+import { account, MetadataAttributeType } from "@lens-protocol/metadata";
 import { AccountOptions } from "@lens-protocol/metadata";
 import { uplaodMetadata, uploadFile } from "../utils/storage-client";
 import { Account, SessionClient } from "@lens-protocol/client";

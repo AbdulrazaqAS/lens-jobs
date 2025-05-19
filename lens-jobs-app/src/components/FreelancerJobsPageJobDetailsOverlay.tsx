@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react';
 import { AccountAttributeName, JobAttributeName, JobStatus } from '../utils/constants';
 import { useWalletClient } from 'wagmi';
 import { applyForJob } from '../utils/post';
+import { uplaodMetadata } from '../utils/storage-client';
 
 const durations = [
     'Less than 1 day',
@@ -61,7 +62,11 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient
         }
 
         try {
-            const txHash = await applyForJob({job, sessionClient, walletClient});
+            // Get application form metadata
+            const appFormMetadata = {coverLetter, price: freelancerPrice, duration};
+            const appFormMetadataUri = (await uplaodMetadata(appFormMetadata)).slice(7);
+            console.log("Length", appFormMetadataUri.length, appFormMetadataUri);
+            const txHash = await applyForJob({job,revokeApplication: false, appFormUri: appFormMetadataUri, sessionClient, walletClient});
             if (!txHash) throw new Error("Error deleting post");
             
             async function waitForApplyIndexing(){
@@ -72,6 +77,11 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, sessionClient
             }
 
             waitForApplyIndexing(); // No need to await
+
+            setCoverLetter("");
+            setDuration("");
+            setFreelancerPrice("");
+            setShowApplyForm(false);
 
         } catch (error) {
             console.error("Error applying for job:", error);
