@@ -2,7 +2,7 @@ import { Deployer } from "@matterlabs/hardhat-zksync";
 import { Wallet } from "zksync-ethers";
 import 'dotenv/config'
 
-import addresses from "../addresses.json" with { type: "json" };
+import addresses from "../constants.json" with { type: "json" };
 
 const WALLET_PRIVATE_KEY = process.env.WALLET_PRIVATE_KEY;
 
