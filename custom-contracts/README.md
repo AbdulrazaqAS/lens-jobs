@@ -13,6 +13,4 @@ npx hardhat verify 0xda2BFD327d880A42Ec72E3392E10e43bb32B874F "42" --network len
 
 npx hardhat deploy-zksync --script deploy-regular-applyaction.js --network lensTestnet
 
-npx hardhat verify 0x415426Ef44F8E71e919864E3143b50f40Ce9073D "0x4e6cF1F803CdbEE5Fe02360C7242268f3D9C2235" --network lensTestnet
-
-npx hardhat verify 0xF4E03643dD3a3D07608DB20a0ec0Bb83229149d8
+npx hardhat verify 0x16589AC99D1F36f08dbE8EA6363F671AC161ef2F "0x4e6cF1F803CdbEE5Fe02360C7242268f3D9C2235" --network lensTestnet
