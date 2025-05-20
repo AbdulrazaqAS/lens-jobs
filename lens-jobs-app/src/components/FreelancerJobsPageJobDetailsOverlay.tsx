@@ -40,25 +40,29 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
         content: jobContent,
     } = metadata as ArticleMetadata;
 
-    const {data: walletClient} = useWalletClient();
+    const { data: walletClient } = useWalletClient();
     const {
         data: hasAppliedData,
         isLoading: isLoadingHasApplied,
         error: hasAppliedError
     } = useReadContract({
-        abi:JobPostApplyActionABI,
+        abi: JobPostApplyActionABI,
         address: JOB_POST_APPLY_ACTION_ADDRESS,
         functionName: "hasApplied",
-        args: [FEED_ADDRESS, job.id, sessionClient ? currentAccount!.address : ""],  // If no sessionClient, address = "", which will error.
+        // args: [FEED_ADDRESS, job.id, sessionClient ? currentAccount!.address : ""],  // If no sessionClient, address = "", which will error.
+        args: [FEED_ADDRESS, job.id, currentAccount?.address],
+        query: {
+            enabled: !!currentAccount?.address, // only run if address is not null
+        },
     });
-    
+
     const hirerTotalSpent = author.metadata?.attributes.find((attr) => attr.key === AccountAttributeName.totalSpent)?.value ?? 0;
 
     const hirerFee = jobAttributes?.find((attr) => attr.key === JobAttributeName.fee)?.value ?? 0;
     const feePerHour = jobAttributes?.find((attr) => attr.key === JobAttributeName.feePerHour)?.value ?? "false";
     const jobStatus = jobAttributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? JobStatus.Sealed;
     const jobDeadline = jobAttributes?.find((attr) => attr.key === JobAttributeName.deadline)?.value ?? "Error";
-    
+
     const [hasApplied, setHasApplied] = useState(false);
     const [showApplyForm, setShowApplyForm] = useState(false);
     const [coverLetter, setCoverLetter] = useState('');
@@ -67,11 +71,11 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        console.log({hasAppliedData, isLoadingHasApplied, hasAppliedError});
+        console.log({ hasAppliedData, isLoadingHasApplied, hasAppliedError });
         if (!isLoadingHasApplied && !hasAppliedError) setHasApplied(hasAppliedData as boolean);
     }, [hasAppliedData])
 
-    async function handleApply(e: FormEvent){
+    async function handleApply(e: FormEvent) {
         e.preventDefault();
 
         if (!sessionClient) {
@@ -87,14 +91,14 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
         try {
             setIsSubmitting(true);
             // Get application form metadata
-            const appFormMetadata = {coverLetter, price: freelancerPrice, duration};
+            const appFormMetadata = { coverLetter, price: freelancerPrice, duration };
             const appFormMetadataUri = (await uplaodMetadata(appFormMetadata)).slice(7);
             console.log("Length", appFormMetadataUri.length, appFormMetadataUri);
-            
-            const txHash = await applyForJob({job,revokeApplication: false, appFormUri: appFormMetadataUri, sessionClient, walletClient});
+
+            const txHash = await applyForJob({ job, revokeApplication: false, appFormUri: appFormMetadataUri, sessionClient, walletClient });
             if (!txHash) throw new Error("Error applying for job");
-            
-            async function waitForApplyIndexing(){
+
+            async function waitForApplyIndexing() {
                 const result = await sessionClient!.waitForTransaction(txHash!);
                 if (result.isErr()) throw result.error;
                 console.log("Job aplication successful. TxHash:", result.value);
@@ -115,7 +119,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
         }
     }
 
-    async function handleRevokeApplication(e: FormEvent){
+    async function handleRevokeApplication(e: FormEvent) {
         e.preventDefault();
 
         if (!sessionClient) {
@@ -130,11 +134,11 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
 
         try {
             setIsSubmitting(true);
-            
-            const txHash = await applyForJob({job,revokeApplication: true, sessionClient, walletClient});
+
+            const txHash = await applyForJob({ job, revokeApplication: true, sessionClient, walletClient });
             if (!txHash) throw new Error("Error revoking job application");
-            
-            async function waitForRevokeApplyIndexing(){
+
+            async function waitForRevokeApplyIndexing() {
                 const result = await sessionClient!.waitForTransaction(txHash!);
                 if (result.isErr()) throw result.error;
                 console.log("Job application revoked successfully. TxHash:", result.value);
@@ -202,7 +206,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
 
             {/* Apply Button */}
             {!showApplyForm && sessionClient && (
-                !hasApplied ? 
+                !hasApplied ?
                     <button
                         onClick={() => setShowApplyForm(true)}
                         className="mt-4 bg-primary hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg"

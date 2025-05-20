@@ -17,6 +17,7 @@ export enum AccountModes {
 export enum AccountAttributeName {
     dob = "dob",
     twitter = "twitter",
+    github = "github",
     linkedin = "linkedin",
     accountMode = "accountMode",
     totalSpent = "totalSpent"

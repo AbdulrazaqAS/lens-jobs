@@ -7,6 +7,7 @@ import { Paginated } from '@lens-protocol/client';
 import { article, ArticleOptions, MetadataAttributeType } from '@lens-protocol/metadata';
 import { uplaodMetadata } from '../utils/storage-client';
 import { fetchAccountByAddress } from '../utils/account';
+import HirerApplicantList from './HirerApplicantList';
 
 interface JobAttribute {
     key: string;
@@ -51,7 +52,7 @@ export default function HirerJobsPageJobDetailsOverlay({
     const deadline = attributes?.find((attr) => attr.key === JobAttributeName.deadline)?.value ?? "";
     const freelancer = attributes?.find((attr) => attr.key === JobAttributeName.freelancer)?.value ?? "";
 
-    const [selected, setSelected] = useState<string | null>(null);
+    const [selected, setSelected] = useState<string | undefined>();
     const [applications, setApplications] = useState<PostExecutedActions[]>([]);
     const [freelancerAccount, setfreelancerAccount] = useState<Account>();
 
@@ -192,7 +193,7 @@ export default function HirerJobsPageJobDetailsOverlay({
     }, [freelancer]);
 
     return (
-        <div id="overlay-content" className="bg-surface text-white p-6 rounded-2xl shadow-xl w-full max-w-4xl mx-auto space-y-6">
+        <div id="overlay-content" className="bg-surface text-white p-6 rounded-2xl shadow-xl max-w-4xl mx-auto space-y-6 overflow-y-auto max-h-[90vh]">
             {/* Title and Status */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                 <div>
@@ -272,25 +273,26 @@ export default function HirerJobsPageJobDetailsOverlay({
                     {applications.length === 0 ? (
                         <p className="text-gray-400">No applications yet.</p>
                     ) : (
-                        <ul className="space-y-3">
-                            {applications.map((application) => (
-                                <li
-                                    key={application.account.address}
-                                    className={`flex justify-between items-center p-3 rounded-lg bg-background border ${selected === application.account.address ? 'border-secondary' : 'border-white/10'
-                                        }`}
-                                >
-                                    <span>{application.account.metadata?.name ?? "Lens Jobs Freelancer"}</span>
-                                    <button
-                                        onClick={() => {
-                                            setSelected(application.account.address);
-                                        }}
-                                        className="bg-secondary text-black text-sm px-4 py-1 rounded hover:opacity-90"
-                                    >
-                                        Select
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
+                        <HirerApplicantList applications={applications} jobId={job.id} selected={selected} setSelected={setSelected}/>
+                        // <ul className="space-y-3">
+                        //     {applications.map((application) => (
+                        //         <li
+                        //             key={application.account.address}
+                        //             className={`flex justify-between items-center p-3 rounded-lg bg-background border ${selected === application.account.address ? 'border-secondary' : 'border-white/10'
+                        //                 }`}
+                        //         >
+                        //             <span>{application.account.metadata?.name ?? "Lens Jobs Freelancer"}</span>
+                        //             <button
+                        //                 onClick={() => {
+                        //                     setSelected(application.account.address);
+                        //                 }}
+                        //                 className="bg-secondary text-black text-sm px-4 py-1 rounded hover:opacity-90"
+                        //             >
+                        //                 Select
+                        //             </button>
+                        //         </li>
+                        //     ))}
+                        // </ul>
                     )}
                 </div>
             }

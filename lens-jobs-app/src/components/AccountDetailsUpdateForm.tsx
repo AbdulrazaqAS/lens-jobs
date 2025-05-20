@@ -50,6 +50,11 @@ export default function AccountDetailsUpdateForm({ currentAccount, setCurrentAcc
       type: MetadataAttributeType.STRING,
       value: "https://linkedin.com/in/",
     },
+    {
+      key: AccountAttributeName.github,
+      type: MetadataAttributeType.STRING,
+      value: "https://github.com/",
+    },
     { key: AccountAttributeName.dob, type: MetadataAttributeType.DATE, value: "" },
   ]);
 
