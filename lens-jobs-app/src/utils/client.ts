@@ -1,16 +1,13 @@
-import { PublicClient, testnet } from "@lens-protocol/client";
+import { PublicClient, mainnet } from "@lens-protocol/client";
 import { WalletClient } from "viem";
 import { signMessageWith } from "@lens-protocol/client/viem";
 import { evmAddress } from "@lens-protocol/client";
-import { fragments } from "../fragments";
 
 const APP_ADDRESS = import.meta.env.VITE_APP_ADDRESS;
 
 export const client = PublicClient.create({
-  environment: testnet,
-  // fragments,
-  //origin: "https://myappdomain.xyz",
-  //apiKey: "<SERVER-API-KEY>",  // to increase rate limit in server to server call
+  environment: mainnet,
+  // apiKey: "<SERVER-API-KEY>",  // to increase rate limit in server to server call
 });
 
 export async function setupOnboardingSessionClient({

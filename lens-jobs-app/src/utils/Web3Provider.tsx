@@ -8,15 +8,14 @@ import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 
 const config = createConfig(
     getDefaultConfig({
-        chains: [chains.mainnet, chains.testnet],
+        chains: [chains.mainnet],
         transports: {
             [chains.mainnet.id]: http(chains.mainnet.rpcUrls.default.http[0]!),
-            [chains.testnet.id]: http(chains.testnet.rpcUrls.default.http[0]!),
         },
         walletConnectProjectId: import.meta.env.VITE_PUBLIC_WALLET_CONNECT_PROJECT_ID,
-        appName: "Lens Peek",
-        appDescription: "A Lens Protocol Social Graph Explorer",
-        appUrl: "",
+        appName: "Lens Jobs",
+        appDescription: "Lens Jobs is a freelance platform for Web3 on lens protocol.",
+        appUrl: "https://lens-jobs.vercel.app",
         appIcon: "",
     })
 );
