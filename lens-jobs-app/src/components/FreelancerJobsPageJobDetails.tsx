@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Post, SessionClient } from '@lens-protocol/client';
+import { Post, SessionClient, Account } from '@lens-protocol/client';
 import FreelancerJobsPageJobCard from './FreelancerJobsPageJobCard';
 import FreelancerJobsPageJobDetailsOverlay from './FreelancerJobsPageJobDetailsOverlay';
 
 interface Props {
     job: Post;
     sessionClient?: SessionClient;
+    currentAccount?: Account;
 }
 
 export default function FreelancerJobsPageJobDetails({
     job,
     sessionClient,
+    currentAccount,
 }: Props) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -36,7 +38,7 @@ export default function FreelancerJobsPageJobDetails({
                 <div onClick={() => setIsOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
                     {/* e.stopPropagation to stop the click event from being passed to the parent div which will close the details */}
                     <div onClick={(e)=>e.stopPropagation()} className="relative w-full max-w-4xl mx-auto my-10 bg-surface text-white rounded-lg shadow-lg overflow-y-auto max-h-[90vh]">
-                        <FreelancerJobsPageJobDetailsOverlay job={job} sessionClient={sessionClient}/>
+                        <FreelancerJobsPageJobDetailsOverlay job={job} sessionClient={sessionClient} currentAccount={currentAccount} />
                     </div>
                 </div>
             )}

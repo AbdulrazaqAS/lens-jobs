@@ -46,7 +46,7 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
         abi:JobPostApplyActionABI,
         address: JOB_POST_APPLY_ACTION_ADDRESS,
         functionName: "hasApplied",
-        args: [FEED_ADDRESS, job.id, currentAccount?.address ?? ""],
+        args: [FEED_ADDRESS, job.id, sessionClient ? currentAccount!.address : ""],  // If no sessionClient, address = "", which will error.
     });
     
     const hirerTotalSpent = author.metadata?.attributes.find((attr) => attr.key === AccountAttributeName.totalSpent)?.value ?? 0;

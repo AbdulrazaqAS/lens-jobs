@@ -198,7 +198,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                 {loading ? (
                     Array.from({ length: JobsPerPage }).map((_, i) => <JobSkeleton key={i} />)
                 ) : currentPageJobs.length > 0 ? (
-                    currentPageJobs.map((job, i) => <FreelancerJobsPageJobDetails key={i} job={job} sessionClient={sessionClient} />)
+                    currentPageJobs.map((job, i) => <FreelancerJobsPageJobDetails key={i} job={job} sessionClient={sessionClient} currentAccount={currentAccount} />)
                 ) : (
                     <p className="text-gray-500">No jobs found.</p>
                 )}

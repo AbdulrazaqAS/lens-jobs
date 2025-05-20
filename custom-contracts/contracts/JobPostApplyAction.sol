@@ -63,23 +63,21 @@ contract JobPostApplyAction is BasePostAction {
         }
 
         require(revokeFound, "Revoke parameter not found");
-        require(appFormUriFound, "Application form uri parameter missing");
         
         bool callerHasApplied = hasApplied[feed][postId][originalMsgSender];
-        require(!revoke && !callerHasApplied, "Already applied");
-        require(!revoke && appFormUriFound, "Application form uri missing");
-        
-        hasApplied[feed][postId][originalMsgSender] = !callerHasApplied;
-
-        if (!revoke) applicationFormUris[feed][postId][originalMsgSender] = appFormUri;
-        else delete applicationFormUris[feed][postId][originalMsgSender];
-
-        if (!callerHasApplied) {
-            emit JobApplied(originalMsgSender, feed, postId);
-            applications[feed][postId]++;
-        } else {
-            emit JobApplicationRevoked(originalMsgSender, feed, postId);
+        if (revoke) {
+            require(callerHasApplied, "Haven't applied yet");
+            hasApplied[feed][postId][originalMsgSender] = false;
+            delete applicationFormUris[feed][postId][originalMsgSender];
             applications[feed][postId]--;
+            emit JobApplicationRevoked(originalMsgSender, feed, postId);
+        } else {
+            require(!callerHasApplied, "Already applied");
+            require(appFormUriFound, "Application form uri missing");
+            hasApplied[feed][postId][originalMsgSender] = true;
+            applicationFormUris[feed][postId][originalMsgSender] = appFormUri;
+            applications[feed][postId]++;
+            emit JobApplied(originalMsgSender, feed, postId);
         }
 
         return "";
