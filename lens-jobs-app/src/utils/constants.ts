@@ -6,7 +6,6 @@ export const JobsPerPage = PaginatedPageSize === PageSize.Ten ? 10 : 50;
 export enum Navs {
     jobs = "jobs",
     profile = "profile",
-    dev = "dev",
 }
 
 export enum AccountModes {

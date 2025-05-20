@@ -8,10 +8,10 @@ import NewJobPostForm from './NewJobPostForm';
 
 enum Tabs {
   AllJobs = 'All Jobs',
-  Completed = 'Completed Jobs',
-  Sealed = 'Sealed Jobs',
-  Hiring = 'Hiring Jobs',
-  TotalSpent = 'Total Spent',
+  // Completed = 'Completed Jobs',
+  // Sealed = 'Sealed Jobs',
+  // Hiring = 'Hiring Jobs',
+  // TotalSpent = 'Total Spent',
   CreateJob = 'Create Job'
 }
 
@@ -84,9 +84,6 @@ export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) 
             }}
           >
             {tab}
-            {tab === Tabs.TotalSpent && (
-              <span className="ml-2 text-accent font-semibold">${totalSpent}</span>
-            )}
           </button>
         ))}
       </div>
@@ -106,7 +103,7 @@ export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) 
       </div>
 
       {/* Pagination */}
-      <div className="mt-6 flex justify-center gap-2">
+      {/* <div className="mt-6 flex justify-center gap-2">
         {Array.from({ length: Math.ceil(jobs.length / PAGE_SIZE) }).map((_, i) => (
           <button
             key={i}
@@ -119,7 +116,7 @@ export default function HirerJobsPage({ sessionClient, currentAccount }: Profs) 
             {i + 1}
           </button>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

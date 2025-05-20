@@ -18,7 +18,7 @@ export default function HirerJobsPageJobCard({job, onClick}: Props) {
     
       const fee = attributes?.find((attr) => attr.key === JobAttributeName.fee)?.value ?? 0;
       const feePerHour = attributes?.find((attr) => attr.key === JobAttributeName.feePerHour)?.value ?? "true";
-      const status = attributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? JobStatus.Sealed;
+      const status = attributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? JobStatus.Hiring;
     
     return (
         <div

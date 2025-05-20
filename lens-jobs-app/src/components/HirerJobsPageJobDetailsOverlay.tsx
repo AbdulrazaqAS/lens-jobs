@@ -203,13 +203,15 @@ export default function HirerJobsPageJobDetailsOverlay({
                     </span>
                 </div>
                 <div className="flex gap-2">
-                    <button
-                        disabled={isUpdating}
-                        onClick={handleUpdateJob}
-                        className="bg-primary hover:opacity-90 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg"
-                    >
-                        {isUpdating ? "Updating..." : "Update"}
-                    </button>
+                    {freelancer &&
+                        <button
+                            disabled={isUpdating}
+                            onClick={handleUpdateJob}
+                            className="bg-primary hover:opacity-90 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg"
+                        >
+                            {isUpdating ? "Updating..." : "Update"}
+                        </button>
+                    }
                     <button
                         onClick={handleDeleteJob}
                         disabled={isDeleting}
@@ -257,7 +259,7 @@ export default function HirerJobsPageJobDetailsOverlay({
                                 }}
                                 className="bg-secondary text-black text-sm px-4 py-1 rounded hover:opacity-90"
                             >
-                                Select
+                                Selected
                             </button>
                         </div>
                         :
@@ -274,25 +276,6 @@ export default function HirerJobsPageJobDetailsOverlay({
                         <p className="text-gray-400">No applications yet.</p>
                     ) : (
                         <HirerApplicantList applications={applications} jobId={job.id} selected={selected} setSelected={setSelected}/>
-                        // <ul className="space-y-3">
-                        //     {applications.map((application) => (
-                        //         <li
-                        //             key={application.account.address}
-                        //             className={`flex justify-between items-center p-3 rounded-lg bg-background border ${selected === application.account.address ? 'border-secondary' : 'border-white/10'
-                        //                 }`}
-                        //         >
-                        //             <span>{application.account.metadata?.name ?? "Lens Jobs Freelancer"}</span>
-                        //             <button
-                        //                 onClick={() => {
-                        //                     setSelected(application.account.address);
-                        //                 }}
-                        //                 className="bg-secondary text-black text-sm px-4 py-1 rounded hover:opacity-90"
-                        //             >
-                        //                 Select
-                        //             </button>
-                        //         </li>
-                        //     ))}
-                        // </ul>
                     )}
                 </div>
             }
