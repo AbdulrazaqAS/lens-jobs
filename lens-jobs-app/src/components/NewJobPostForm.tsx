@@ -67,6 +67,8 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       value: feePerHour.toString(),
     }
 
+    // JobStatus attr will default to Hiring if not found in metadata
+
     return [feeAttr, deadlineAttr, feePerHourAttr];
   }
 
@@ -102,7 +104,7 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       const metadataUri = await uplaodMetadata(metadata);
       const txHash = await postJob({ sessionClient, walletClient, metadataUri });
       console.log("Post txHash", txHash);
-      // TODO: Delete metadata if user can proceed with posting
+      // TODO: Delete metadata if user can't proceed with posting
 
       async function updateHirerJobsOnMined(){
         const result = await sessionClient.waitForTransaction(txHash);
@@ -122,7 +124,6 @@ export default function NewJobPostForm({ sessionClient, setRefetchJobsCounter }:
       setFee(0);
     } catch (error) {
       console.error("Job post error:", error);
-      alert("Failed to post job");
     } finally {
       setIsLoading(false)
     }

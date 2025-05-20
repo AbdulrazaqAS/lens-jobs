@@ -27,7 +27,7 @@ export enum JobAttributeName {
     feePerHour = "feePerHour",
     deadline = "deadline",
     status = "status",
-    applicants = "applicants",
+    freelancer = "freelancer",
 }
 
 export const Tags: ReadonlyArray<string> = [
@@ -73,14 +73,13 @@ export enum JobsTab {
 
 export enum JobStatus {
     Hiring = 'hiring',
-    Finised = 'finished',
+    Finished = 'finished',
     Sealed = 'sealed',
-    Deleted =  'deleted',
 }
 
 export const JobStatusStyles: Record<JobStatus, string> = {
     hiring: 'bg-secondary text-black',
     finished: 'bg-accent text-black',
     sealed: 'bg-primary text-white',
-    deleted: 'bg-danger text-white',
+    // deleted: 'bg-danger text-white',
 };

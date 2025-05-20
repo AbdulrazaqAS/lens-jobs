@@ -1,5 +1,5 @@
 import { SessionClient, uri, txHash, evmAddress, AnyClient, Feed, MainContentFocus, PageSize, postId, Post, blockchainData } from "@lens-protocol/client";
-import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fetchFeed, bookmarkPost, fetchPostBookmarks, undoBookmarkPost, executePostAction, fetchWhoExecutedActionOnPost, deletePost } from "@lens-protocol/client/actions";
+import { post, fetchPost, fetchPosts, fetchPostsForYou, fetchPostsToExplore, fetchFeed, bookmarkPost, fetchPostBookmarks, undoBookmarkPost, executePostAction, fetchWhoExecutedActionOnPost, deletePost, editPost } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/viem";
 import { keccak256, toBytes, toHex, WalletClient } from "viem";
 import { client } from "./client";
@@ -35,6 +35,28 @@ export async function postJob({ sessionClient, walletClient, metadataUri }: { se
     return result.value;
 }
 
+export function checkUserCanEditJob(job: Post) {
+    switch (job.operations!.canEdit.__typename) {  // operations won't be undefined because post will be from authenticated session
+        case "PostOperationValidationFailed":
+            throw new Error(job.operations!.canEdit.reason);
+        case "PostOperationValidationUnknown":
+            throw new Error("User can edit this job post");
+    }
+}
+
+export async function updateJobPost({ sessionClient, jobId, walletClient, metadataUri }: { jobId: string, sessionClient: SessionClient, walletClient: WalletClient, metadataUri: string }) {
+    const result = await editPost(sessionClient, {
+        contentUri: uri(metadataUri),
+        post: postId(jobId),
+    }).andThen(handleOperationWith(walletClient));
+
+    if (result.isErr()) {
+        throw result.error;
+    }
+
+    return result.value;
+}
+
 async function fetchFeedByAddress(addr: string, sessionClient: SessionClient) {
     const result = await fetchFeed(sessionClient, {
         feed: evmAddress(addr),
@@ -47,14 +69,15 @@ async function fetchFeedByAddress(addr: string, sessionClient: SessionClient) {
     return result.value;
 }
 
+// TODO: Do it like checkUserCanEditJob
 function checkUserCanPostJob(feed: Feed) {
-    switch (feed.operations!.canPost.__typename) {  // canPost won't be undefined
+    switch (feed.operations!.canPost.__typename) {  // operations won't be undefined because post will be from authenticated session
         case "FeedOperationValidationFailed":
-            console.error("User can post on this feed:", feed.operations!.canPost.reason);
-            throw new Error(`User can post on this feed: ${feed.operations!.canPost.reason}`);
+            console.error("User can't post on this feed:", feed.operations!.canPost.reason);
+            throw new Error(`User can't post on this feed: ${feed.operations!.canPost.reason}`);
         case "FeedOperationValidationUnknown":
-            console.error("User can post on this feed");
-            throw new Error("User can post on this feed");
+            console.error("User can't post on this feed");
+            throw new Error("User can't post on this feed");
     }
 }
 
@@ -315,6 +338,7 @@ export async function fetchJobWhoEverApplied(job: Post) {
                 },
             ],
         },
+        pageSize: PageSize.Fifty,
     });
 
     if (result.isErr()) {
@@ -324,12 +348,13 @@ export async function fetchJobWhoEverApplied(job: Post) {
     return result.value;
 }
 
+// Do it like checkUserCanEditJob
 function checkUserCanDeleteJob(job: Post) {
-    switch (job.operations!.canDelete.__typename) {  // canDelete won't be undefined
+    switch (job.operations!.canDelete.__typename) {  // operations won't be undefined because post will be from authenticated session
         case "PostOperationValidationFailed":
             throw new Error(`Error deleting job: ${job.operations!.canDelete.reason}`);
         case "PostOperationValidationUnknown":
-            throw new Error(`Error deleting job`);
+            throw new Error("User can't delete this job");
     }
 }
 
