@@ -11,11 +11,11 @@ interface Profs {
     scrollToTop: Function;
 }
 
+// TODO: Add job application status on job card
 export default function FreelancerJobsPage({ sessionClient, currentAccount, scrollToTop }: Profs) {
     const [feedJobs, setFeedJobs] = useState<Post[]>([]);
     const [bookmarkedJobs, setBookmarkedJobs] = useState<Post[]>([]);
-    const [trendingJobs, setTrendingJobs] = useState<Post[]>([]);
-    const [forYouJobs, setForYouJobs] = useState<Post[]>([]);
+    const [appliedJobs, setAppliedJobs] = useState<Post[]>([]);
     const [searchedJobs, setSearchedJobs] = useState<ReadonlyArray<Post>>([]);
 
     const [activeTab, setActiveTab] = useState<JobsTab>(JobsTab.Recent);
@@ -52,7 +52,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
         let jobsArray: Post[] = [];
         if (activeTab === JobsTab.Recent) jobsArray = feedJobs;
         else if (activeTab === JobsTab.Bookmark) jobsArray = bookmarkedJobs;
-        else if (activeTab === JobsTab.ForYou) jobsArray = forYouJobs;
+        else if (activeTab === JobsTab.Applied) jobsArray = appliedJobs;
 
         const pageAlreadyLoaded = pageJobsLoaded(currentPage + 1, jobsArray);
 
@@ -91,7 +91,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
             console.log("Page", currentPage);
             if (activeTab === JobsTab.Recent) jobsArray = feedJobs;
             else if (activeTab === JobsTab.Bookmark) jobsArray = bookmarkedJobs;
-            else if (activeTab === JobsTab.ForYou) jobsArray = forYouJobs;
+            else if (activeTab === JobsTab.Applied) jobsArray = appliedJobs;
 
             if (pageJobsLoaded(currentPage, jobsArray)) {
                 console.log("Current page already loaded", currentPage, "of", activeTab);
@@ -106,7 +106,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                         result = await fetchJobsByFeed({ sessionClient, cursor });
                     } else if (activeTab === JobsTab.Bookmark && sessionClient) {
                         result = await fetchBookmarkedPosts(sessionClient);
-                    } else if (activeTab === JobsTab.ForYou && sessionClient) {
+                    } else if (activeTab === JobsTab.Applied && sessionClient) {
                         result = await fetchJobsToExplore(sessionClient);
                     }
 
@@ -121,7 +121,7 @@ export default function FreelancerJobsPage({ sessionClient, currentAccount, scro
                     // Bug: read pageJobsLoaded func
                     if (activeTab === JobsTab.Recent) setFeedJobs(prev => [...prev, ...pageJobs]);
                     else if (activeTab === JobsTab.Bookmark) setBookmarkedJobs(prev => [...prev, ...pageJobs]);
-                    else if (activeTab === JobsTab.ForYou) setForYouJobs(prev => [...prev, ...pageJobs]);
+                    else if (activeTab === JobsTab.Applied) setAppliedJobs(prev => [...prev, ...pageJobs]);
                 } catch (error) {
                     console.error(`Error fetching page jobs:`, error);
                 }
