@@ -270,7 +270,7 @@ export async function applyForJob({
 }: {
     job: Post,
     revokeApplication: boolean,
-    appFormUri: string,
+    appFormUri?: string,
     sessionClient: SessionClient,
     walletClient: WalletClient
 }) {
@@ -286,7 +286,7 @@ export async function applyForJob({
                 params: [
                     {
                         key: blockchainData(keccak256(toBytes("lens.param.appFormUri"))),
-                        data: blockchainData(encodeValue(appFormUri, "bytes appFormUri")),
+                        data: blockchainData(encodeValue(appFormUri ?? "", "bytes appFormUri")),
                     },
                     {
                         key: blockchainData(keccak256(toBytes("lens.param.revoke"))),

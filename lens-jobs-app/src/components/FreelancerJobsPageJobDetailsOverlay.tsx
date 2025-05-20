@@ -56,8 +56,8 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
     const jobStatus = jobAttributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? JobStatus.Sealed;
     const jobDeadline = jobAttributes?.find((attr) => attr.key === JobAttributeName.deadline)?.value ?? "Error";
 
-    const hasApplied = false;
-
+    
+    const [hasApplied, setHasApplied] = useState(false);
     const [showApplyForm, setShowApplyForm] = useState(false);
     const [coverLetter, setCoverLetter] = useState('');
     const [duration, setDuration] = useState('');
@@ -66,7 +66,8 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
 
     useEffect(() => {
         console.log({hasAppliedData, isLoadingHasApplied, hasAppliedError});
-    }, [hasAppliedData, isLoadingHasApplied, hasAppliedError])
+        if (!isLoadingHasApplied && !hasAppliedError) setHasApplied(hasAppliedData as boolean);
+    }, [hasAppliedData])
 
     async function handleApply(e: FormEvent){
         e.preventDefault();
@@ -89,13 +90,13 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
             console.log("Length", appFormMetadataUri.length, appFormMetadataUri);
             
             const txHash = await applyForJob({job,revokeApplication: false, appFormUri: appFormMetadataUri, sessionClient, walletClient});
-            if (!txHash) throw new Error("Error deleting post");
+            if (!txHash) throw new Error("Error applying for job");
             
             async function waitForApplyIndexing(){
                 const result = await sessionClient!.waitForTransaction(txHash!);
                 if (result.isErr()) throw result.error;
                 console.log("Job aplication successful. TxHash:", result.value);
-                // TODO: refresh application status
+                setHasApplied(true); // Immediately update it, it will refetch the original value on rerender
             }
 
             waitForApplyIndexing(); // No need to await
@@ -112,14 +113,48 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
         }
     }
 
+    async function handleRevokeApplication(e: FormEvent){
+        e.preventDefault();
+
+        if (!sessionClient) {
+            console.error("No session client detected");
+            return;
+        }
+
+        if (!walletClient) {
+            console.error("Wallet not connected");
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            
+            const txHash = await applyForJob({job,revokeApplication: true, sessionClient, walletClient});
+            if (!txHash) throw new Error("Error revoking job application");
+            
+            async function waitForRevokeApplyIndexing(){
+                const result = await sessionClient!.waitForTransaction(txHash!);
+                if (result.isErr()) throw result.error;
+                console.log("Job application revoked successfully. TxHash:", result.value);
+                setHasApplied(false);  // Immediately update it, it will refetch the original value on rerender
+            }
+
+            waitForRevokeApplyIndexing(); // No need to await
+        } catch (error) {
+            console.error("Error applying for job:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    }
+
     return (
         <div className="max-w-4xl mx-auto p-6 bg-surface text-white rounded-xl shadow-lg space-y-6">
             {/* Job Title and Status */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                 <h2 className="text-2xl font-bold">{jobTitle}</h2>
-                <span className={`text-sm font-medium px-3 py-1 rounded-full ${jobStatus === 'applied' ? 'bg-secondary text-black' : 'bg-accent text-black'
+                <span className={`text-sm font-medium px-3 py-1 rounded-full ${hasApplied ? 'bg-secondary text-black' : 'bg-accent text-black'
                     }`}>
-                    {jobStatus === 'applied' ? 'Already Applied' : 'Not Applied'}
+                    {hasApplied ? 'Already Applied' : 'Not Applied'}
                 </span>
             </div>
 
@@ -164,13 +199,21 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
             </div>
 
             {/* Apply Button */}
-            {!showApplyForm && !hasApplied && sessionClient && (
-                <button
-                    onClick={() => setShowApplyForm(true)}
-                    className="mt-4 bg-primary hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg"
-                >
-                    Apply for Job
-                </button>
+            {!showApplyForm && sessionClient && (
+                !hasApplied ? 
+                    <button
+                        onClick={() => setShowApplyForm(true)}
+                        className="mt-4 bg-primary hover:bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg"
+                    >
+                        Apply for Job
+                    </button> :
+                    <button
+                        onClick={handleRevokeApplication}
+                        disabled={isSubmitting}
+                        className="mt-4 bg-danger hover:bg-red-600 disabled:cursor-not-allowed text-white font-semibold px-6 py-2 rounded-lg"
+                    >
+                        {isSubmitting ? "Deleting..." : "Delete Application"}
+                    </button>
             )}
 
             {/* Apply Form */}
