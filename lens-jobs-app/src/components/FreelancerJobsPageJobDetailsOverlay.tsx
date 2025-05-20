@@ -24,6 +24,9 @@ interface Props {
 }
 
 // TODO: Add mins and maxs for inputs.
+// TODO: Add update appplication data capability.
+// TODO: Show job application status on JobCard.
+// TODO: Add delete confirmation
 export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccount, sessionClient }: Props) {
     const {
         metadata,
@@ -55,7 +58,6 @@ export default function FreelancerJobsPageJobDetailsOverlay({ job, currentAccoun
     const feePerHour = jobAttributes?.find((attr) => attr.key === JobAttributeName.feePerHour)?.value ?? "false";
     const jobStatus = jobAttributes?.find((attr) => attr.key === JobAttributeName.status)?.value ?? JobStatus.Sealed;
     const jobDeadline = jobAttributes?.find((attr) => attr.key === JobAttributeName.deadline)?.value ?? "Error";
-
     
     const [hasApplied, setHasApplied] = useState(false);
     const [showApplyForm, setShowApplyForm] = useState(false);
